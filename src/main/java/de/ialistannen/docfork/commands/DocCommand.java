@@ -173,7 +173,7 @@ public class DocCommand implements Command {
           .sorted(Comparator.naturalOrder())
           .map(it -> Button.of(
               ButtonStyle.SECONDARY,
-              "!javadoc " + (shortDescritpion ? "short " : "") + it,
+              "!javadoc " + (shortDescritpion ? "" : "long ") + it,
               it
           ))
           .collect(Collectors.groupingBy(
