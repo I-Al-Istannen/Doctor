@@ -123,7 +123,7 @@ public class DocCommand implements Command {
       source.editOrReply("I couldn't find any result for '" + query + "':/").queue();
       return;
     }
-    replyMultipleResults(source, results);
+    replyMultipleResults(source, shortDescription, results);
   }
 
   private void replyForResult(CommandSource source, FuzzyQueryResult result, boolean shortDesc,
@@ -156,7 +156,8 @@ public class DocCommand implements Command {
     }
   }
 
-  private void replyMultipleResults(CommandSource source, List<FuzzyQueryResult> results) {
+  private void replyMultipleResults(CommandSource source, boolean shortDescritpion,
+      List<FuzzyQueryResult> results) {
     if (results.size() < Type.BUTTON.getMaxPerRow() * 5) {
       AtomicInteger counter = new AtomicInteger();
       List<ActionRow> rows = results.stream()
@@ -164,7 +165,11 @@ public class DocCommand implements Command {
           .map(QualifiedName::asString)
           .distinct()
           .sorted(Comparator.naturalOrder())
-          .map(it -> Button.of(ButtonStyle.SECONDARY, "!javadoc " + it, it))
+          .map(it -> Button.of(
+              ButtonStyle.SECONDARY,
+              "!javadoc " + (shortDescritpion ? "short " : "") + it,
+              it
+          ))
           .collect(Collectors.groupingBy(
               it -> counter.getAndIncrement() / Type.BUTTON.getMaxPerRow(),
               Collectors.toList()
