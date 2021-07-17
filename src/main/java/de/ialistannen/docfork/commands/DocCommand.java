@@ -120,7 +120,9 @@ public class DocCommand implements Command {
     }
 
     if (results.size() == 0) {
-      source.editOrReply("I couldn't find any result for '" + query + "':/").queue();
+      source.editOrReply(
+          "I couldn't find any result for '" + query + "' <:feelsBadMan:626724180284538890>"
+      ).queue();
       return;
     }
     replyMultipleResults(source, shortDescription, results);
@@ -152,7 +154,9 @@ public class DocCommand implements Command {
 
       source.editOrReply(new MessageBuilder(docEmbedBuilder.build()).build()).queue();
     } else {
-      source.reply("I found multiple elements for this qualified name :/").queue();
+      source.reply(
+          "I found multiple elements for this qualified name <:feelsBadMan:626724180284538890>"
+      ).queue();
     }
   }
 

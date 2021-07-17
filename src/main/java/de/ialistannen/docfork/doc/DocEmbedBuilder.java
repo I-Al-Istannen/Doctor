@@ -1,5 +1,8 @@
 package de.ialistannen.docfork.doc;
 
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
+
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.QualifiedName;
@@ -12,7 +15,9 @@ import de.ialistannen.javadocapi.model.types.JavadocType.Type;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -59,14 +64,34 @@ public class DocEmbedBuilder {
 
   public DocEmbedBuilder addTags() {
     element.getComment().ifPresent(comment -> {
-      for (JavadocCommentTag tag : comment.getTags()) {
-        String body = renderer.render(tag.getContent(), baseUrl);
-        String title = tag.getTagName() + tag.getArgument().map(it -> " " + it).orElse("");
+      Map<String, List<JavadocCommentTag>> tags = comment.getTags()
+          .stream()
+          .collect(groupingBy(
+              tag -> tag.getTagName() + tag.getArgument().map(it -> " " + it).orElse(""),
+              toList()
+          ));
 
+      for (var entry : tags.entrySet()) {
+        String title = entry.getKey();
+
+        StringJoiner bodyJoiner = new StringJoiner(", ");
+        for (int i = 0; i < entry.getValue().size(); i++) {
+          JavadocCommentTag tag = entry.getValue().get(i);
+          String rendered = renderer.render(tag.getContent(), baseUrl);
+          if (bodyJoiner.length() + rendered.length() > MessageEmbed.VALUE_MAX_LENGTH) {
+            if (i < entry.getValue().size() - 1) {
+              bodyJoiner.add("... and more");
+            }
+            break;
+          }
+          bodyJoiner.add(rendered);
+        }
+
+        String body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH);
         embedBuilder.addField(
             title,
-            limitSize(body, MessageEmbed.VALUE_MAX_LENGTH),
-            shouldInlineTag(tag, body)
+            body,
+            shouldInlineTag(entry.getValue().get(0).getTagName(), body)
         );
       }
     });
@@ -74,8 +99,8 @@ public class DocEmbedBuilder {
     return this;
   }
 
-  private boolean shouldInlineTag(JavadocCommentTag tag, String rendered) {
-    if (tag.getTagName().equals("implNote")) {
+  private boolean shouldInlineTag(String tagName, String rendered) {
+    if (tagName.equals("implNote")) {
       return false;
     }
 
