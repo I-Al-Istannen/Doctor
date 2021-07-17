@@ -18,6 +18,7 @@ import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
+import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -135,15 +136,16 @@ public class DocCommand implements Command {
     );
 
     if (elements.size() == 1) {
+      LoadResult<JavadocElement> loadResult = elements.iterator().next();
       DocEmbedBuilder docEmbedBuilder = new DocEmbedBuilder(
           renderer,
-          elements.iterator().next().getResult(),
-          "https://docs.oracle.com/en/java/javase/16/docs/api/"
+          loadResult.getResult(),
+          ((BaseUrlElementLoader) loadResult.getLoader()).getBaseUrl()
       )
           .addColor()
           .addIcon()
           .addShortDescription()
-          .addFooter(elements.iterator().next().getLoader().toString());
+          .addFooter(loadResult.getLoader().toString());
 
       if (!shortDesc) {
         docEmbedBuilder.addLongDescription();

@@ -8,6 +8,7 @@ import de.ialistannen.javadocapi.storage.AggregatedElementLoader;
 import de.ialistannen.javadocapi.storage.ConfiguredGson;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.SqliteStorage;
+import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -30,11 +31,13 @@ public class Main {
 
     List<ElementLoader> storages = new ArrayList<>();
     for (Database database : config.getDatabases()) {
-      storages.add(new SqliteStorage(
+      storages.add(new BaseUrlElementLoader(
+          new SqliteStorage(
               ConfiguredGson.create(),
               Path.of(database.getPath())
-          )
-      );
+          ),
+          database.getBaseUrl()
+      ));
     }
 
     JDA jda = JDABuilder.createDefault(config.getToken())
@@ -74,13 +77,19 @@ public class Main {
   private static class Database {
 
     private String path;
+    private String baseUrl;
 
-    public Database(String path) {
+    public Database(String path, String baseUrl) {
       this.path = path;
+      this.baseUrl = baseUrl;
     }
 
     public String getPath() {
       return path;
+    }
+
+    public String getBaseUrl() {
+      return baseUrl;
     }
   }
 }
