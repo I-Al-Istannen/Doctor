@@ -88,16 +88,16 @@ public class DocCommand implements Command {
     handleQuery(
         source,
         query,
-        source.getOption("short").map(OptionMapping::getAsBoolean).orElse(false),
+        source.getOption("long").map(OptionMapping::getAsBoolean).orElse(true),
         source.getOption("omit-tags").map(OptionMapping::getAsBoolean).orElse(false)
     );
   }
 
   @Override
   public void handle(CommandContext commandContext, CommandSource source) {
-    Optional<String> isShort = commandContext.tryShift(literal("short"));
+    Optional<String> isLong = commandContext.tryShift(literal("long"));
 
-    handleQuery(source, commandContext.shift(remaining(2)), isShort.isPresent(), false);
+    handleQuery(source, commandContext.shift(remaining(2)), isLong.isEmpty(), false);
   }
 
   private void handleQuery(CommandSource source, String query, boolean shortDescription,

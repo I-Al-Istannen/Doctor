@@ -46,6 +46,7 @@ public class Main {
             new UpdateSlashesCommand()
         )))
         .build()
+        .setRequiredScopes("applications.commands")
         .awaitReady();
 
     System.out.println(jda.getInviteUrl(Permission.MESSAGE_WRITE));
