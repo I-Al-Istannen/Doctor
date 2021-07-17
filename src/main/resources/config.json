@@ -1,0 +1,8 @@
+{
+  "token": "bot token",
+  "databases": [
+    {
+      "path": "foo.db"
+    }
+  ]
+}
