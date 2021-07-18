@@ -158,7 +158,7 @@ public class DeclarationFormatter {
     List<String> parameters = new ArrayList<>();
 
     while (input.peek() != ')') {
-      parameters.add(formatAnnotationParameter(result.length() + 1 + currentSize, input));
+      parameters.add(formatAnnotationParameter(input));
       if (input.peek() == ',') {
         input.assertRead(", ");
       }
@@ -176,7 +176,7 @@ public class DeclarationFormatter {
     return result.toString();
   }
 
-  private String formatAnnotationParameter(int currentSize, StringReader input) {
+  private String formatAnnotationParameter(StringReader input) {
     StringBuilder result = new StringBuilder();
     String name = input.readWhile(Character::isJavaIdentifierPart);
 

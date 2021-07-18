@@ -4,7 +4,9 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import de.ialistannen.docfork.util.DeclarationFormatter;
+import de.ialistannen.docfork.util.parsers.ParseError;
 import de.ialistannen.javadocapi.model.JavadocElement;
+import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.model.comment.JavadocCommentTag;
 import de.ialistannen.javadocapi.model.types.JavadocField;
@@ -41,9 +43,17 @@ public class DocEmbedBuilder {
   }
 
   public DocEmbedBuilder addDeclaration() {
+    String declaration = element.getDeclaration(DeclarationStyle.SHORT);
+
+    try {
+      declaration = declarationFormatter.formatDeclaration(element);
+    } catch (ParseError e) {
+      System.err.println(e.getMessage());
+    }
+
     embedBuilder.getDescriptionBuilder()
         .append("```java\n")
-        .append(declarationFormatter.formatDeclaration(element))
+        .append(declaration)
         .append("\n```");
     return this;
   }
