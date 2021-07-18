@@ -21,6 +21,7 @@ import java.util.StringJoiner;
 import java.util.function.Predicate;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import org.apache.commons.lang3.StringUtils;
 
 public class DocEmbedBuilder {
 
@@ -133,7 +134,11 @@ public class DocEmbedBuilder {
         .orElse("");
 
     embedBuilder.setAuthor(
-        element.getQualifiedName().asStringWithModule(),
+        StringUtils.abbreviateMiddle(
+            element.getQualifiedName().asStringWithModule(),
+            "...",
+            MessageEmbed.AUTHOR_MAX_LENGTH
+        ),
         linkResolveStrategy.resolveLink(element.getQualifiedName(), baseUrl),
         iconUrl
     );
