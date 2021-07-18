@@ -3,8 +3,8 @@ package de.ialistannen.docfork.doc;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
+import de.ialistannen.docfork.util.DeclarationFormatter;
 import de.ialistannen.javadocapi.model.JavadocElement;
-import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.model.comment.JavadocCommentTag;
 import de.ialistannen.javadocapi.model.types.JavadocField;
@@ -29,6 +29,7 @@ public class DocEmbedBuilder {
   private final MarkdownCommentRenderer renderer;
   private final JavadocElement element;
   private final String baseUrl;
+  private final DeclarationFormatter declarationFormatter;
 
   public DocEmbedBuilder(MarkdownCommentRenderer renderer, JavadocElement element, String baseUrl) {
     this.renderer = renderer;
@@ -36,6 +37,15 @@ public class DocEmbedBuilder {
     this.baseUrl = baseUrl;
 
     this.embedBuilder = new EmbedBuilder();
+    this.declarationFormatter = new DeclarationFormatter(56);
+  }
+
+  public DocEmbedBuilder addDeclaration() {
+    embedBuilder.getDescriptionBuilder()
+        .append("```java\n")
+        .append(declarationFormatter.formatDeclaration(element))
+        .append("\n```");
+    return this;
   }
 
   public DocEmbedBuilder addShortDescription() {
@@ -116,7 +126,7 @@ public class DocEmbedBuilder {
         .orElse("");
 
     embedBuilder.setAuthor(
-        element.getDeclaration(DeclarationStyle.SHORT),
+        element.getQualifiedName().asStringWithModule(),
         buildUrl(),
         iconUrl
     );

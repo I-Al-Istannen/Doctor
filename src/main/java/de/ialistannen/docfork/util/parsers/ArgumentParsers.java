@@ -1,8 +1,13 @@
 package de.ialistannen.docfork.util.parsers;
 
 import de.ialistannen.docfork.util.Result;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ArgumentParsers {
+
+  private static Set<Character> QUOTE_CHARS = Set.of('"', '\'');
+
 
   public static ArgumentParser<String> literal(String text) {
     return reader -> {
@@ -32,6 +37,67 @@ public class ArgumentParsers {
         return Result.ok(spaces);
       }
       return Result.error(new ParseError("Expected some whitespace", reader));
+    };
+  }
+
+  /**
+   * A parser that reads a single word (i.e. until a space character).
+   *
+   * @return a parser that reads a single word
+   */
+  public static ArgumentParser<String> word() {
+    final Pattern pattern = Pattern.compile("[\\S]*");
+
+    return input -> {
+      String readString = input.readRegex(pattern);
+
+      if (readString.length() == 0) {
+        return Result.error(new ParseError("Expected a word", input));
+      }
+
+      return Result.ok(readString);
+    };
+  }
+
+
+  /**
+   * A parser that reads a single word or a quoted phrase.
+   *
+   * @return a parser that reads a single word or a quoted phrase
+   */
+  public static ArgumentParser<String> phrase() {
+    return input -> {
+      if (!QUOTE_CHARS.contains(input.peek())) {
+        return word().parse(input);
+      }
+
+      char quoteChar = input.readChar();
+
+      StringBuilder readString = new StringBuilder();
+
+      boolean escaped = false;
+      while (input.canRead()) {
+        char read = input.readChar();
+
+        if (escaped) {
+          escaped = false;
+          readString.append(read);
+          continue;
+        }
+
+        if (read == '\\') {
+          escaped = true;
+        } else if (read == quoteChar) {
+          break;
+        } else {
+          readString.append(read);
+        }
+      }
+
+      if (readString.length() == 0) {
+        return Result.error(new ParseError("Expected some (optionally quoted) phrase", input));
+      }
+      return Result.ok(readString.toString());
     };
   }
 }

@@ -67,8 +67,8 @@ public class DocCommand implements Command {
             )
             .addOption(
                 OptionType.BOOLEAN,
-                "short",
-                "Only display a short summary of the javadoc",
+                "long",
+                "Display a long version of the javadoc",
                 false
             )
             .addOption(
@@ -89,7 +89,7 @@ public class DocCommand implements Command {
     handleQuery(
         source,
         query,
-        source.getOption("long").map(OptionMapping::getAsBoolean).orElse(true),
+        !source.getOption("long").map(OptionMapping::getAsBoolean).orElse(false),
         source.getOption("omit-tags").map(OptionMapping::getAsBoolean).orElse(false)
     );
   }
@@ -144,6 +144,7 @@ public class DocCommand implements Command {
       )
           .addColor()
           .addIcon()
+          .addDeclaration()
           .addShortDescription()
           .addFooter(loadResult.getLoader().toString());
 

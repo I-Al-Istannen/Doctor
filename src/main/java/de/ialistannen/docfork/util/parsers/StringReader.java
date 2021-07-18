@@ -54,10 +54,35 @@ public class StringReader {
   /**
    * Peeks at a single char.
    *
-   * @return the char
+   * @return the char or 0 if EOF is reached
    */
   public char peek() {
+    if (position >= underlying.length()) {
+      return 0;
+    }
     return underlying.charAt(position);
+  }
+
+  public String peekWhile(Predicate<Character> predicate) {
+    int start = getPosition();
+    String result = readWhile(predicate);
+    reset(start);
+
+    return result;
+  }
+
+  public String assertRead(String string) {
+    if (!readChars(string.length()).equals(string)) {
+      throw new ParseError("Expected '" + string + "'", this);
+    }
+    return string;
+  }
+
+  public char assertRead(char character) {
+    if (readChar() != character) {
+      throw new ParseError("Expected '" + character + "'", this);
+    }
+    return character;
   }
 
   /**
@@ -177,5 +202,9 @@ public class StringReader {
    */
   public StringReader copy() {
     return new StringReader(underlying, position);
+  }
+
+  public int remaining() {
+    return underlying.length() - position - 1;
   }
 }
