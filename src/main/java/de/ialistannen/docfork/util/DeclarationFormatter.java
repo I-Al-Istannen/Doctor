@@ -96,15 +96,15 @@ public class DeclarationFormatter {
       result.append(superclass);
     }
 
-    if (element.getSuperInterfaces() != null) {
-      if (choppedDown) {
-        result.append("\n ");
-      }
-
+    if (element.getSuperInterfaces() != null && !element.getSuperInterfaces().isEmpty()) {
       if (!input.peek(" implements ".length()).equals(" implements ")) {
         String rest = input.peekWhile(c -> true);
         int index = rest.indexOf(" implements ");
         result.append(input.readChars(index));
+      }
+
+      if (choppedDown) {
+        result.append("\n ");
       }
 
       result.append(input.assertRead(" implements "));
@@ -123,6 +123,10 @@ public class DeclarationFormatter {
           }
         }
       }
+      result.append(input.readRemaining());
+    }
+
+    if (result.isEmpty()) {
       result.append(input.readRemaining());
     }
 
