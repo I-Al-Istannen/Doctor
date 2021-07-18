@@ -20,6 +20,11 @@ public class SlashCommandSource implements CommandSource {
   }
 
   @Override
+  public String getId() {
+    return event.getId();
+  }
+
+  @Override
   public String rawText() {
     return event.getOptions().stream()
         .filter(it -> it.getType() == OptionType.STRING)

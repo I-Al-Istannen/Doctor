@@ -21,6 +21,11 @@ public class MessageCommandSource implements CommandSource {
   }
 
   @Override
+  public String getId() {
+    return message.getId();
+  }
+
+  @Override
   public String rawText() {
     return message.getContentRaw();
   }

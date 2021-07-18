@@ -17,6 +17,11 @@ public class ButtonCommandSource implements CommandSource {
   }
 
   @Override
+  public String getId() {
+    return event.getId();
+  }
+
+  @Override
   public String rawText() {
     return event.getButton().getLabel();
   }

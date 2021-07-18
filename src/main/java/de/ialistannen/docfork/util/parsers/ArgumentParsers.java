@@ -59,6 +59,29 @@ public class ArgumentParsers {
     };
   }
 
+  /**
+   * A parser that reads a single word (i.e. until a space character).
+   *
+   * @return a parser that reads a single word
+   */
+  public static ArgumentParser<Integer> integer() {
+    final Pattern pattern = Pattern.compile("\\d+");
+
+    return input -> {
+      String readString = input.readRegex(pattern);
+
+      if (readString.length() == 0) {
+        return Result.error(new ParseError("Expected an integer", input));
+      }
+
+      try {
+        return Result.ok(Integer.parseInt(readString));
+      } catch (NumberFormatException e) {
+        return Result.error(new ParseError("Couldn't parse number: " + e.getMessage(), input));
+      }
+    };
+  }
+
 
   /**
    * A parser that reads a single word or a quoted phrase.

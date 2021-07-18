@@ -1,5 +1,7 @@
 package de.ialistannen.docfork.commands.system;
 
+import static de.ialistannen.docfork.util.parsers.ArgumentParsers.whitespace;
+
 import de.ialistannen.docfork.util.parsers.ArgumentParser;
 import de.ialistannen.docfork.util.parsers.StringReader;
 import java.util.Optional;
@@ -13,7 +15,9 @@ public class CommandContext {
   }
 
   public <T> T shift(ArgumentParser<T> parser) {
-    return parser.parse(rawText).getOrThrow();
+    final T result = parser.parse(rawText).getOrThrow();
+    rawText.readWhile(Character::isWhitespace);
+    return result;
   }
 
   public <T> Optional<T> tryShift(ArgumentParser<T> parser) {

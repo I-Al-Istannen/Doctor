@@ -8,6 +8,8 @@ public interface CommandSource {
 
   String rawText();
 
+  String getId();
+
   RestAction<?> reply(Message message);
 
   default RestAction<?> reply(String message) {
