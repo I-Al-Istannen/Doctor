@@ -51,7 +51,7 @@ public class DocEmbedBuilder {
     embedBuilder.getDescriptionBuilder()
         .append("```java\n")
         .append(declaration)
-        .append("\n```");
+        .append("\n```\n");
     return this;
   }
 

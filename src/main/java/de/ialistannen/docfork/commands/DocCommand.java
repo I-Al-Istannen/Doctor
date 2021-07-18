@@ -19,9 +19,10 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
+import de.ialistannen.javadocapi.util.NameShortener;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.Component.Type;
+import org.apache.commons.lang3.StringUtils;
 
 public class DocCommand implements Command {
 
@@ -165,19 +167,22 @@ public class DocCommand implements Command {
     }
   }
 
-  private void replyMultipleResults(CommandSource source, boolean shortDescritpion,
+  private void replyMultipleResults(CommandSource source, boolean shortDescription,
       List<FuzzyQueryResult> results) {
     if (results.size() < Type.BUTTON.getMaxPerRow() * 5) {
       AtomicInteger counter = new AtomicInteger();
-      List<ActionRow> rows = results.stream()
-          .map(FuzzyQueryResult::getQualifiedName)
-          .map(QualifiedName::asString)
-          .distinct()
-          .sorted(Comparator.naturalOrder())
+      List<ActionRow> rows = new NameShortener().shortenMatches(
+          results.stream()
+              .map(FuzzyQueryResult::getQualifiedName)
+              .collect(Collectors.toSet())
+      )
+          .entrySet()
+          .stream()
+          .sorted(Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
           .map(it -> Button.of(
               ButtonStyle.SECONDARY,
-              "!javadoc " + (shortDescritpion ? "" : "long ") + it,
-              it
+              "!javadoc " + (shortDescription ? "" : "long ") + it.getKey(),
+              StringUtils.abbreviate(it.getValue(), 80)
           ))
           .collect(Collectors.groupingBy(
               it -> counter.getAndIncrement() / Type.BUTTON.getMaxPerRow(),
