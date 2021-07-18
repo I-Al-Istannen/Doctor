@@ -7,21 +7,18 @@ import de.ialistannen.docfork.util.DeclarationFormatter;
 import de.ialistannen.docfork.util.parsers.ParseError;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
-import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.model.comment.JavadocCommentTag;
 import de.ialistannen.javadocapi.model.types.JavadocField;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;
-import de.ialistannen.javadocapi.model.types.JavadocMethod.Parameter;
 import de.ialistannen.javadocapi.model.types.JavadocType;
 import de.ialistannen.javadocapi.model.types.JavadocType.Type;
+import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import java.awt.Color;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 
@@ -127,7 +124,7 @@ public class DocEmbedBuilder {
     return rendered.replaceAll("(\\[.+?])\\(.+?\\)", "$1").length() <= 100;
   }
 
-  public DocEmbedBuilder addIcon() {
+  public DocEmbedBuilder addIcon(LinkResolveStrategy linkResolveStrategy) {
     String iconUrl = displayDatas()
         .stream()
         .filter(it -> it.matches(element))
@@ -137,46 +134,11 @@ public class DocEmbedBuilder {
 
     embedBuilder.setAuthor(
         element.getQualifiedName().asStringWithModule(),
-        buildUrl(),
+        linkResolveStrategy.resolveLink(element.getQualifiedName(), baseUrl),
         iconUrl
     );
 
     return this;
-  }
-
-  private String buildUrl() {
-    String baseUrl = "https://docs.oracle.com/en/java/javase/16/docs/api/java.base/";
-    StringBuilder result = new StringBuilder();
-    Optional<QualifiedName> current = Optional.of(element.getQualifiedName());
-    while (current.isPresent()) {
-      QualifiedName name = current.get();
-      if (name.asString().contains("#")) {
-        result.insert(0, ".html#" + name.getSimpleName());
-      } else {
-        result.insert(0, name.getSimpleName());
-
-        if (current.get().getLexicalParent().isPresent()) {
-          result.insert(0, "/");
-        }
-      }
-      current = current.get().getLexicalParent();
-    }
-
-    if (element instanceof JavadocMethod) {
-      result.append("(");
-      String params = ((JavadocMethod) element).getParameters().stream()
-          .map(Parameter::getType)
-          .map(QualifiedName::asString)
-          .collect(Collectors.joining(","));
-      result.append(params);
-      result.append(")");
-    }
-
-    if (!element.getQualifiedName().asString().contains("#")) {
-      result.append(".html");
-    }
-
-    return baseUrl + result;
   }
 
   public DocEmbedBuilder addColor() {

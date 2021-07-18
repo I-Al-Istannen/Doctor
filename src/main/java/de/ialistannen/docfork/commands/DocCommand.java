@@ -39,12 +39,14 @@ public class DocCommand implements Command {
   private final QueryApi<FuzzyQueryResult> queryApi;
   private final ElementLoader loader;
   private final MarkdownCommentRenderer renderer;
+  private final Java11PlusLinkResolver linkResolveStrategy;
 
   public DocCommand(QueryApi<FuzzyQueryResult> queryApi, ElementLoader loader) {
     this.queryApi = queryApi;
     this.loader = loader;
 
-    this.renderer = new MarkdownCommentRenderer(new Java11PlusLinkResolver());
+    this.linkResolveStrategy = new Java11PlusLinkResolver();
+    this.renderer = new MarkdownCommentRenderer(linkResolveStrategy);
   }
 
   @Override
@@ -143,7 +145,7 @@ public class DocCommand implements Command {
           ((BaseUrlElementLoader) loadResult.getLoader()).getBaseUrl()
       )
           .addColor()
-          .addIcon()
+          .addIcon(linkResolveStrategy)
           .addDeclaration()
           .addShortDescription()
           .addFooter(loadResult.getLoader().toString());
