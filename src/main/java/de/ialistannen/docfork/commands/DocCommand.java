@@ -113,7 +113,6 @@ public class DocCommand implements Command {
 
   @Override
   public void handle(CommandContext commandContext, ButtonCommandSource source) {
-    boolean shortDescription = !commandContext.shift(word()).equals("long");
     Integer id = commandContext.shift(integer());
     ActiveButtons buttons = this.activeButtons.remove(commandContext.shift(word()));
 
@@ -133,7 +132,7 @@ public class DocCommand implements Command {
       return;
     }
 
-    handleQuery(source, choice.get(), shortDescription, false);
+    handleQuery(source, choice.get(), buttons.isShortDescription(), false);
   }
 
   @Override
@@ -226,8 +225,7 @@ public class DocCommand implements Command {
           .sorted(Entry.comparingByKey(String.CASE_INSENSITIVE_ORDER))
           .map(it -> Button.of(
               ButtonStyle.SECONDARY,
-              "!javadoc " + shortDescription + " " +
-                  resultIdMapping.get(it.getKey()) + " " + source.getId(),
+              "!javadoc " + resultIdMapping.get(it.getKey()) + " " + source.getId(),
               StringUtils.abbreviate(it.getValue(), 80)
           ))
           .collect(Collectors.groupingBy(
@@ -247,7 +245,7 @@ public class DocCommand implements Command {
           .queue();
       activeButtons.put(
           source.getId(),
-          new ActiveButtons(resultIdMapping)
+          new ActiveButtons(resultIdMapping, shortDescription)
       );
       return;
     }
@@ -266,13 +264,19 @@ public class DocCommand implements Command {
   private static class ActiveButtons {
 
     private final Map<Integer, String> choices;
+    private final boolean shortDescription;
 
-    private ActiveButtons(Map<String, Integer> choices) {
+    private ActiveButtons(Map<String, Integer> choices, boolean shortDescription) {
+      this.shortDescription = shortDescription;
       this.choices = new HashMap<>();
 
       for (Entry<String, Integer> entry : choices.entrySet()) {
         this.choices.put(entry.getValue(), entry.getKey());
       }
+    }
+
+    public boolean isShortDescription() {
+      return shortDescription;
     }
 
     public Optional<String> getChoice(int target) {
