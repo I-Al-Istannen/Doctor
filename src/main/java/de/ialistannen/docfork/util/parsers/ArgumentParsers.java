@@ -137,30 +137,25 @@ public class ArgumentParsers {
 
       StringBuilder readString = new StringBuilder();
 
-      boolean escaped = false;
       while (input.canRead()) {
         char read = input.readChar();
 
-        if (escaped) {
-          escaped = false;
-          readString.append(read);
-          continue;
-        }
-
         if (read == quoteOpen) {
           nestingLevel++;
-          readString.append(read);
-        } else if (read == '\\') {
-          escaped = true;
         } else if (read == quoteEnd) {
           nestingLevel--;
           if (nestingLevel == 0) {
             break;
           }
-          readString.append(read);
-        } else {
-          readString.append(read);
         }
+
+        readString.append(read);
+      }
+
+      if (nestingLevel != 0) {
+        return Result.error(
+            new ParseError("Expected a closing " + quoteEnd, input)
+        );
       }
 
       if (readString.length() == 0) {
