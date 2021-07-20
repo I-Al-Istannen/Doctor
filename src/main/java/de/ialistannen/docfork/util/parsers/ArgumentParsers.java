@@ -123,4 +123,52 @@ public class ArgumentParsers {
       return Result.ok(readString.toString());
     };
   }
+
+  /**
+   * A parser that reads a quoted phrase and supports nesting. it can read until matching "{" and
+   * "}", for example.
+   *
+   * @return a parser that reads a (nested) quoted phrase
+   */
+  public static ArgumentParser<String> nestedQuote(char quoteOpen, char quoteEnd) {
+    return input -> {
+      input.assertRead(quoteOpen);
+      int nestingLevel = 1;
+
+      StringBuilder readString = new StringBuilder();
+
+      boolean escaped = false;
+      while (input.canRead()) {
+        char read = input.readChar();
+
+        if (escaped) {
+          escaped = false;
+          readString.append(read);
+          continue;
+        }
+
+        if (read == quoteOpen) {
+          nestingLevel++;
+          readString.append(read);
+        } else if (read == '\\') {
+          escaped = true;
+        } else if (read == quoteEnd) {
+          nestingLevel--;
+          if (nestingLevel == 0) {
+            break;
+          }
+          readString.append(read);
+        } else {
+          readString.append(read);
+        }
+      }
+
+      if (readString.length() == 0) {
+        return Result.error(
+            new ParseError("Expected some phrase quoted with " + quoteOpen + quoteEnd, input)
+        );
+      }
+      return Result.ok(readString.toString());
+    };
+  }
 }

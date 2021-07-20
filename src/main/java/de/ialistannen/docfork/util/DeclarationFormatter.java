@@ -1,5 +1,6 @@
 package de.ialistannen.docfork.util;
 
+import static de.ialistannen.docfork.util.parsers.ArgumentParsers.nestedQuote;
 import static de.ialistannen.docfork.util.parsers.ArgumentParsers.phrase;
 
 import de.ialistannen.docfork.util.parsers.StringReader;
@@ -54,7 +55,12 @@ public class DeclarationFormatter {
     boolean chopDown = input.peekWhile(c -> c != ')').length() + currentSize > maxLength;
 
     while (input.peek() != ')') {
-      String untilNext = input.readWhile(c -> c != ')' && c != ',').strip();
+      String untilNext = input.readWhile(c -> c != ')' && c != ',' && c != '<').strip();
+      if (input.peek() == '<') {
+        untilNext += "<" + nestedQuote('<', '>').parse(input).getOrThrow() + ">";
+        untilNext += input.readWhile(c -> c != ')' && c != ',');
+        untilNext = untilNext.strip();
+      }
 
       if (chopDown) {
         result.append("\n  ");

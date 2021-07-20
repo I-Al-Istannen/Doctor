@@ -90,6 +90,21 @@ class DeclarationFormatterTest {
   }
 
   @Test
+  void testMethodParametersGeneric() {
+    String text = """
+        public static void foobar(Map<String, Integer> thisIsMap, Map<List<String>, Map<Integer, ? extends String>> foo)""";
+
+    assertEquals(
+        """
+            public static void foobar(
+              Map<String, Integer> thisIsMap,
+              Map<List<String>, Map<Integer, ? extends String>> foo
+            )""",
+        formatter.formatDeclaration(new FakeMethod(text))
+    );
+  }
+
+  @Test
   void testTypeChop() {
     String text = """
         @Deprecated(value = "Hello, this is deprecated for removal my friend")
