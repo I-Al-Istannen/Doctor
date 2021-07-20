@@ -115,9 +115,12 @@ public class DeclarationFormatter {
 
       result.append(input.assertRead(" implements "));
       // Chop down interfaces!
-      if (input.remaining() + 2 > maxLength) {
+      if (input.remaining() + " implements ".length() > maxLength) {
         while (input.remaining() > 0) {
           String type = input.readWhile(c -> c == '.' || Character.isJavaIdentifierPart(c));
+          if (input.peek() == '<') {
+            type += "<" + nestedQuote('<', '>').parse(input).getOrThrow() + ">";
+          }
           result
               .append(type)
               .append(input.remaining() > 0 ? "," : "")

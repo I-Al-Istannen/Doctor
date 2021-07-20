@@ -125,6 +125,23 @@ class DeclarationFormatterTest {
   }
 
   @Test
+  void testTypeChopGeneric() {
+    String text = """
+        public static class FooBar<T> extends String<Int, Int> implements A<Map<Int, String>>, B<List<StringBuilder>>""";
+
+    assertEquals(
+        """
+            public static class FooBar<T>
+              extends String<Int, Int>
+              implements A<Map<Int, String>>,
+                         B<List<StringBuilder>>""",
+        formatter.formatDeclaration(new FakeType(
+            text, new QualifiedName(""), List.of(new QualifiedName(""))
+        ))
+    );
+  }
+
+  @Test
   void testTypeJFrame() {
     String text = """
         @JavaBean(defaultProperty = "JMenuBar", description = "A toplevel window which can be minimized to an icon.")
