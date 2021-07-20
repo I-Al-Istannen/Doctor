@@ -7,6 +7,7 @@ import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;
 import de.ialistannen.javadocapi.model.types.JavadocType;
+import de.ialistannen.javadocapi.model.types.PossiblyGenericType;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -179,9 +180,9 @@ class DeclarationFormatterTest {
           List.of(),
           null,
           interfaces.stream()
-              .map(it -> new PossiblyGenericSupertype(it, List.of()))
+              .map(it -> new PossiblyGenericType(it, List.of()))
               .collect(Collectors.toList()),
-          new PossiblyGenericSupertype(superclass, List.of())
+          new PossiblyGenericType(superclass, List.of())
       );
       this.declaration = declaration;
     }
