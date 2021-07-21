@@ -17,6 +17,11 @@ public class ButtonCommandSource implements CommandSource {
   }
 
   @Override
+  public String getAuthorId() {
+    return event.getInteraction().getUser().getId();
+  }
+
+  @Override
   public String getId() {
     return event.getId();
   }

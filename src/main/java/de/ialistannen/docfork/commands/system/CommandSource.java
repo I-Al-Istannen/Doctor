@@ -10,6 +10,8 @@ public interface CommandSource {
 
   String getId();
 
+  String getAuthorId();
+
   RestAction<?> reply(Message message);
 
   default RestAction<?> reply(String message) {

@@ -29,6 +29,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -114,7 +115,8 @@ public class DocCommand implements Command {
   @Override
   public void handle(CommandContext commandContext, ButtonCommandSource source) {
     Integer id = commandContext.shift(integer());
-    ActiveButtons buttons = this.activeButtons.remove(commandContext.shift(word()));
+    String buttonId = commandContext.shift(word());
+    ActiveButtons buttons = this.activeButtons.get(buttonId);
 
     if (buttons == null) {
       source.editOrReply(
@@ -122,6 +124,16 @@ public class DocCommand implements Command {
       ).queue();
       return;
     }
+
+    if (!Objects.equals(source.getAuthorId(), buttons.getUserId())) {
+      source.getEvent()
+          .reply("\uD83D\uDE94 Are you trying to steal those buttons? \uD83D\uDE94")
+          .setEphemeral(true)
+          .queue();
+      return;
+    }
+
+    this.activeButtons.remove(buttonId);
 
     Optional<String> choice = buttons.getChoice(id);
 
@@ -245,7 +257,7 @@ public class DocCommand implements Command {
           .queue();
       activeButtons.put(
           source.getId(),
-          new ActiveButtons(resultIdMapping, shortDescription)
+          new ActiveButtons(resultIdMapping, shortDescription, source.getAuthorId())
       );
       return;
     }
@@ -265,9 +277,11 @@ public class DocCommand implements Command {
 
     private final Map<Integer, String> choices;
     private final boolean shortDescription;
+    private final String userId;
 
-    private ActiveButtons(Map<String, Integer> choices, boolean shortDescription) {
+    private ActiveButtons(Map<String, Integer> choices, boolean shortDescription, String userId) {
       this.shortDescription = shortDescription;
+      this.userId = userId;
       this.choices = new HashMap<>();
 
       for (Entry<String, Integer> entry : choices.entrySet()) {
@@ -277,6 +291,10 @@ public class DocCommand implements Command {
 
     public boolean isShortDescription() {
       return shortDescription;
+    }
+
+    public String getUserId() {
+      return userId;
     }
 
     public Optional<String> getChoice(int target) {
