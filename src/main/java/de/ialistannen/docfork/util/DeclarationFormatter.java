@@ -11,6 +11,8 @@ import de.ialistannen.javadocapi.model.types.JavadocType;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.tuple.Pair;
 
 public class DeclarationFormatter {
 
@@ -155,6 +157,9 @@ public class DeclarationFormatter {
       if (input.peek() == '\n') {
         input.readChar();
       }
+      if (input.peek() == '@') {
+        result.append("\n");
+      }
     }
 
     if (result.length() > 0) {
@@ -168,43 +173,110 @@ public class DeclarationFormatter {
     StringBuilder result = new StringBuilder();
     result.append(input.assertRead('('));
 
-    List<String> parameters = new ArrayList<>();
+    List<Pair<String, String>> parameters = new ArrayList<>();
 
     while (input.peek() != ')') {
-      parameters.add(formatAnnotationParameter(input));
+      parameters.add(parseAnnotationParameter(input));
       if (input.peek() == ',') {
         input.assertRead(", ");
       }
     }
 
-    String joinedParameters = String.join(", ", parameters);
-    if (joinedParameters.length() + 2 + currentSize > maxLength) {
-      joinedParameters = "\n" + String.join(",\n", parameters).indent(2);
+    if (parameters.size() == 1 && parameters.get(0).getKey().equals("value")) {
+      String value = parameters.get(0).getValue();
+      if (value.length() + currentSize + result.length() <= maxLength) {
+        result.append(value);
+      } else {
+        result.append("\n");
+        result.append(formatAnnotationParameterValue(parameters.get(0).getValue()).indent(2));
+      }
+      parameters.clear();
     }
 
-    result.append(joinedParameters);
+    String joinedParameters = parameters.stream()
+        .map(it -> it.getKey() + " = " + it.getValue())
+        .collect(Collectors.joining(", "));
+
+    if (joinedParameters.length() + 2 + currentSize <= maxLength) {
+      result.append(joinedParameters);
+    } else {
+      result.append("\n");
+
+      StringBuilder chopBuilder = new StringBuilder();
+      // Choppy choppy
+      for (int i = 0; i < parameters.size(); i++) {
+        Pair<String, String> parameter = parameters.get(i);
+        chopBuilder
+            .append(parameter.getKey())
+            .append(" = ");
+        chopBuilder.append(formatAnnotationParameterValue(parameter.getValue()));
+
+        if (i != parameters.size() - 1) {
+          chopBuilder.append(",\n");
+        }
+      }
+
+      result.append(chopBuilder.toString().indent(2));
+    }
 
     result.append(input.assertRead(')'));
 
     return result.toString();
   }
 
-  private String formatAnnotationParameter(StringReader input) {
-    StringBuilder result = new StringBuilder();
-    String name = input.readWhile(Character::isJavaIdentifierPart);
-
-    result.append(name);
-    input.readRegex(Pattern.compile("\\s+=\\s+"));
-    result.append(" = ");
-
-    if (input.peek() == '"') {
-      result.append('"');
-      result.append(phrase().parse(input).getOrThrow());
-      result.append('"');
+  private String formatAnnotationParameterValue(String parameterValue) {
+    String result = "";
+    if (parameterValue.contains("{")) {
+      List<String> elements = getAnnotationArrayElements(
+          new StringReader(parameterValue)
+      );
+      result += "{\n";
+      result += String.join(",\n", elements).indent(2);
+      result += "}";
     } else {
-      result.append(phrase().parse(input).getOrThrow());
+      result += parameterValue;
     }
 
-    return result.toString();
+    return result;
+  }
+
+  private Pair<String, String> parseAnnotationParameter(StringReader input) {
+    String value = "";
+
+    String name = input.readWhile(Character::isJavaIdentifierPart);
+    input.readRegex(Pattern.compile("\\s+=\\s+"));
+
+    if (input.peek() == '"') {
+      value += '"';
+      value += phrase().parse(input).getOrThrow();
+      value += '"';
+    } else if (input.peek() == '{') {
+      value += input.readWhile(c -> c != '}');
+      value += input.assertRead("}");
+    } else {
+      value += input.readRegex(Pattern.compile("[^,)} ]+"));
+    }
+
+    return Pair.of(name, value);
+  }
+
+  private List<String> getAnnotationArrayElements(StringReader input) {
+    List<String> elements = new ArrayList<>();
+
+    input.assertRead("{");
+    while (input.peek() != '}') {
+      if (input.peek() == '"') {
+        elements.add('"' + phrase().parse(input).getOrThrow() + '"');
+      } else {
+        elements.add(input.readRegex(Pattern.compile("[^,)} ]+")));
+      }
+
+      if (input.peek() != '}') {
+        input.assertRead(", ");
+      }
+    }
+    input.assertRead("}");
+
+    return elements;
   }
 }

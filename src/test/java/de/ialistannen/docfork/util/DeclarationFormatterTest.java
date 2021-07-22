@@ -24,31 +24,95 @@ class DeclarationFormatterTest {
   }
 
   @Test
-  void annotationFormatting() {
+  void annotationFormattingDefault() {
     String text = """
         @Deprecated(value = "Hello, this is deprecated for removal my friend")""";
 
     assertEquals(
         """
             @Deprecated(
-              value = "Hello, this is deprecated for removal my friend"
+              "Hello, this is deprecated for removal my friend"
             )""",
-        formatter.formatDeclaration(new JavadocElement() {
-          @Override
-          public QualifiedName getQualifiedName() {
-            return null;
-          }
+        formatter.formatDeclaration(new FakeAnnotation(text))
+    );
+  }
 
-          @Override
-          public Optional<JavadocComment> getComment() {
-            return Optional.empty();
-          }
+  @Test
+  void annotationFormattingDefaultNoChop() {
+    String text = """
+        @Deprecated(value = "Hello, this is deprecated")""";
 
-          @Override
-          public String getDeclaration(DeclarationStyle declarationStyle) {
-            return text;
-          }
-        })
+    assertEquals(
+        """
+            @Deprecated("Hello, this is deprecated")""",
+        formatter.formatDeclaration(new FakeAnnotation(text))
+    );
+  }
+
+  @Test
+  void annotationFormattingMultiple() {
+    String text = """
+        @Deprecated(value = "Hello, this is deprecated for removal my friend", foo = "Hello there, General")""";
+
+    assertEquals(
+        """
+            @Deprecated(
+              value = "Hello, this is deprecated for removal my friend",
+              foo = "Hello there, General"
+            )""",
+        formatter.formatDeclaration(new FakeAnnotation(text))
+    );
+  }
+
+  @Test
+  void annotationFormattingArrayNoChop() {
+    String text = """
+        @Deprecated(foo = {"I am", "part of", "an array"})""";
+
+    assertEquals(
+        """
+            @Deprecated(foo = {"I am", "part of", "an array"})""",
+        formatter.formatDeclaration(new FakeAnnotation(text))
+    );
+  }
+
+  @Test
+  void annotationFormattingArrayChopSingle() {
+    String text = """
+        @Deprecated(foo = {"I am", "part of", "an array", "and I will be", "chopped"})""";
+
+    assertEquals(
+        """
+            @Deprecated(
+              foo = {
+                "I am",
+                "part of",
+                "an array",
+                "and I will be",
+                "chopped"
+              }
+            )""",
+        formatter.formatDeclaration(new FakeAnnotation(text))
+    );
+  }@Test
+  void annotationFormattingArrayChopMultiple() {
+    String text = """
+        @Deprecated(foo = {"I am", "part of", "an array", "and I will be", "chopped"}, bar = 20, hey = "foo")""";
+
+    assertEquals(
+        """
+            @Deprecated(
+              foo = {
+                "I am",
+                "part of",
+                "an array",
+                "and I will be",
+                "chopped"
+              },
+              bar = 20,
+              hey = "foo"
+            )""",
+        formatter.formatDeclaration(new FakeAnnotation(text))
     );
   }
 
@@ -61,7 +125,7 @@ class DeclarationFormatterTest {
     assertEquals(
         """
             @Deprecated(
-              value = "Hello, this is deprecated for removal my friend"
+              "Hello, this is deprecated for removal my friend"
             )
             public static <T> T foobar(
               String a,
@@ -82,7 +146,7 @@ class DeclarationFormatterTest {
     assertEquals(
         """
             @Deprecated(
-              value = "Hello, this is deprecated for removal my friend"
+              "Hello, this is deprecated for removal my friend"
             )
             public static <T> T foobar(String a, int b)""",
         formatter.formatDeclaration(new FakeMethod(text))
@@ -113,7 +177,7 @@ class DeclarationFormatterTest {
     assertEquals(
         """
             @Deprecated(
-              value = "Hello, this is deprecated for removal my friend"
+              "Hello, this is deprecated for removal my friend"
             )
             public static class FooBar<T>
               extends SomeVeryLongClass
@@ -174,7 +238,7 @@ class DeclarationFormatterTest {
     assertEquals(
         """
             @Deprecated(
-              value = "Hello, this is deprecated for removal my friend"
+              "Hello, this is deprecated for removal my friend"
             )
             public static class Foo<T> extends A implements B""",
         formatter.formatDeclaration(new FakeType(
@@ -217,6 +281,30 @@ class DeclarationFormatterTest {
           new PossiblyGenericType(superclass, List.of())
       );
       this.declaration = declaration;
+    }
+
+    @Override
+    public String getDeclaration(DeclarationStyle style) {
+      return declaration;
+    }
+  }
+
+  private static class FakeAnnotation implements JavadocElement {
+
+    private final String declaration;
+
+    public FakeAnnotation(String declaration) {
+      this.declaration = declaration;
+    }
+
+    @Override
+    public QualifiedName getQualifiedName() {
+      return null;
+    }
+
+    @Override
+    public Optional<JavadocComment> getComment() {
+      return Optional.empty();
     }
 
     @Override
