@@ -7,6 +7,7 @@ import de.ialistannen.docfork.util.DeclarationFormatter;
 import de.ialistannen.docfork.util.parsers.ParseError;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
+import de.ialistannen.javadocapi.model.comment.JavadocComment;
 import de.ialistannen.javadocapi.model.comment.JavadocCommentTag;
 import de.ialistannen.javadocapi.model.types.JavadocField;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;
@@ -60,7 +61,7 @@ public class DocEmbedBuilder {
     element.getComment()
         .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
             .append(limitSize(
-                renderer.render(comment.getShortDescription(), baseUrl),
+                renderParagraphs(comment, 800),
                 MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
             ))
         );
@@ -72,12 +73,38 @@ public class DocEmbedBuilder {
     element.getComment()
         .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
             .append(limitSize(
-                renderer.render(comment.getLongDescription(), baseUrl),
+                renderParagraphs(comment, Integer.MAX_VALUE),
                 MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
             ))
         );
 
     return this;
+  }
+
+  private String renderParagraphs(JavadocComment comment, int maxLength) {
+    StringBuilder result = new StringBuilder();
+
+    List<String> renderedParagraphs = comment.getParagraphs()
+        .stream()
+        .map(it -> renderer.render(it, baseUrl))
+        .filter(it -> !it.isBlank())
+        .collect(toList());
+
+    for (int i = 0; i < renderedParagraphs.size(); i++) {
+      String paragraph = renderedParagraphs.get(i);
+
+      if (result.isEmpty() || result.length() + paragraph.length() <= maxLength) {
+        result.append(paragraph);
+      } else {
+        result.append("*Skipped **")
+            .append(renderedParagraphs.size() - i)
+            .append("** paragraph(s). Use the `long` option if you are intrigued.*\n\u200B");
+        break;
+      }
+      result.append("\n\n");
+    }
+
+    return result.toString();
   }
 
   public DocEmbedBuilder addTags() {
