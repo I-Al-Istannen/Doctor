@@ -198,10 +198,11 @@ public class DocCommand implements Command {
           .addColor()
           .addIcon(linkResolveStrategy)
           .addDeclaration()
-          .addShortDescription()
           .addFooter(loadResult.getLoader().toString());
 
-      if (!shortDesc) {
+      if (shortDesc) {
+        docEmbedBuilder.addShortDescription();
+      } else {
         docEmbedBuilder.addLongDescription();
       }
       if (!omitTags) {
