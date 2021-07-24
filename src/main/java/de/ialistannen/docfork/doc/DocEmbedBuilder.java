@@ -61,7 +61,7 @@ public class DocEmbedBuilder {
     element.getComment()
         .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
             .append(limitSize(
-                renderParagraphs(comment, 800),
+                renderParagraphs(comment, 800, 8),
                 MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
             ))
         );
@@ -73,7 +73,7 @@ public class DocEmbedBuilder {
     element.getComment()
         .ifPresent(comment -> embedBuilder.getDescriptionBuilder()
             .append(limitSize(
-                renderParagraphs(comment, Integer.MAX_VALUE),
+                renderParagraphs(comment, Integer.MAX_VALUE, Integer.MAX_VALUE),
                 MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
             ))
         );
@@ -81,7 +81,7 @@ public class DocEmbedBuilder {
     return this;
   }
 
-  private String renderParagraphs(JavadocComment comment, int maxLength) {
+  private String renderParagraphs(JavadocComment comment, int maxLength, int maxNewlines) {
     StringBuilder result = new StringBuilder();
 
     List<String> renderedParagraphs = comment.getParagraphs()
@@ -90,10 +90,16 @@ public class DocEmbedBuilder {
         .filter(it -> !it.isBlank())
         .collect(toList());
 
+    int encounteredNewlines = 0;
+
     for (int i = 0; i < renderedParagraphs.size(); i++) {
       String paragraph = renderedParagraphs.get(i);
 
-      if (result.isEmpty() || result.length() + paragraph.length() <= maxLength) {
+      int newlinesInParagraph = (int) paragraph.lines().count();
+      boolean paragraphTooLong = result.length() + paragraph.length() > maxLength;
+      boolean tooManyNewlines = encounteredNewlines + newlinesInParagraph > maxNewlines;
+
+      if (result.isEmpty() || (!paragraphTooLong && !tooManyNewlines)) {
         result.append(paragraph);
       } else {
         result.append("*Skipped **")
@@ -101,7 +107,14 @@ public class DocEmbedBuilder {
             .append("** paragraph(s). Use the `long` option if you are intrigued.*\n\u200B");
         break;
       }
-      result.append("\n\n");
+
+      encounteredNewlines += newlinesInParagraph;
+
+      if (paragraph.lines().reduce("", (a, b) -> b).startsWith("```")) {
+        result.append("\n");
+      } else {
+        result.append("\n\n");
+      }
     }
 
     return result.toString();
