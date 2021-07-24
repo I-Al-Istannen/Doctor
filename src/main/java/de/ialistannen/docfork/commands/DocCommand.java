@@ -156,7 +156,10 @@ public class DocCommand implements Command {
 
   private void handleQuery(CommandSource source, String query, boolean shortDescription,
       boolean omitTags) {
-    List<FuzzyQueryResult> results = queryApi.query(loader, query.strip());
+    List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
+        .stream()
+        .distinct()
+        .collect(Collectors.toList());
 
     if (results.size() == 1) {
       replyForResult(source, results.get(0), shortDescription, omitTags);
