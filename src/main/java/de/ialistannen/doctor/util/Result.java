@@ -1,4 +1,4 @@
-package de.ialistannen.docfork.util;
+package de.ialistannen.doctor.util;
 
 import java.util.Optional;
 

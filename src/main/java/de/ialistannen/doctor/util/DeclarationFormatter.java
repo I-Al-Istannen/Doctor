@@ -1,9 +1,9 @@
-package de.ialistannen.docfork.util;
+package de.ialistannen.doctor.util;
 
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.nestedQuote;
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.phrase;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.nestedQuote;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.phrase;
 
-import de.ialistannen.docfork.util.parsers.StringReader;
+import de.ialistannen.doctor.util.parsers.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;

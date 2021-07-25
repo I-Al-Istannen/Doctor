@@ -1,4 +1,4 @@
-package de.ialistannen.docfork.util;
+package de.ialistannen.doctor.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

@@ -1,7 +1,7 @@
-package de.ialistannen.docfork.commands.system;
+package de.ialistannen.doctor.commands.system;
 
-import de.ialistannen.docfork.util.parsers.ParseError;
-import de.ialistannen.docfork.util.parsers.StringReader;
+import de.ialistannen.doctor.util.parsers.ParseError;
+import de.ialistannen.doctor.util.parsers.StringReader;
 import java.awt.Color;
 import java.util.Collections;
 import java.util.List;

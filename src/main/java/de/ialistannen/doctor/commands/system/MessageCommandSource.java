@@ -1,4 +1,4 @@
-package de.ialistannen.docfork.commands.system;
+package de.ialistannen.doctor.commands.system;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;

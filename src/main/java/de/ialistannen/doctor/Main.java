@@ -1,8 +1,8 @@
-package de.ialistannen.docfork;
+package de.ialistannen.doctor;
 
-import de.ialistannen.docfork.commands.DocCommand;
-import de.ialistannen.docfork.commands.UpdateSlashesCommand;
-import de.ialistannen.docfork.commands.system.Executor;
+import de.ialistannen.doctor.commands.DocCommand;
+import de.ialistannen.doctor.commands.UpdateSlashesCommand;
+import de.ialistannen.doctor.commands.system.Executor;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import de.ialistannen.javadocapi.storage.AggregatedElementLoader;
 import de.ialistannen.javadocapi.storage.ConfiguredGson;

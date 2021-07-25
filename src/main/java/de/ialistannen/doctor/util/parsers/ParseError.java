@@ -1,4 +1,4 @@
-package de.ialistannen.docfork.util.parsers;
+package de.ialistannen.doctor.util.parsers;
 
 import java.util.stream.Collectors;
 

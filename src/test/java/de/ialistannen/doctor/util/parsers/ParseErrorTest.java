@@ -1,6 +1,6 @@
-package de.ialistannen.docfork.util.parsers;
+package de.ialistannen.doctor.util.parsers;
 
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.literal;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.literal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 

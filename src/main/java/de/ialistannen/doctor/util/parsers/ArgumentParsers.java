@@ -1,6 +1,6 @@
-package de.ialistannen.docfork.util.parsers;
+package de.ialistannen.doctor.util.parsers;
 
-import de.ialistannen.docfork.util.Result;
+import de.ialistannen.doctor.util.Result;
 import java.util.Set;
 import java.util.regex.Pattern;
 

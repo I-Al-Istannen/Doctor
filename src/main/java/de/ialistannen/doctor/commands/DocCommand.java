@@ -1,18 +1,18 @@
-package de.ialistannen.docfork.commands;
+package de.ialistannen.doctor.commands;
 
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.integer;
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.literal;
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.remaining;
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.word;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.integer;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.literal;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.remaining;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.word;
 
-import de.ialistannen.docfork.commands.system.ButtonCommandSource;
-import de.ialistannen.docfork.commands.system.Command;
-import de.ialistannen.docfork.commands.system.CommandContext;
-import de.ialistannen.docfork.commands.system.CommandSource;
-import de.ialistannen.docfork.commands.system.SlashCommandSource;
-import de.ialistannen.docfork.doc.DocEmbedBuilder;
-import de.ialistannen.docfork.util.parsers.ArgumentParser;
-import de.ialistannen.docfork.util.parsers.StringReader;
+import de.ialistannen.doctor.commands.system.ButtonCommandSource;
+import de.ialistannen.doctor.commands.system.Command;
+import de.ialistannen.doctor.commands.system.CommandContext;
+import de.ialistannen.doctor.commands.system.CommandSource;
+import de.ialistannen.doctor.commands.system.SlashCommandSource;
+import de.ialistannen.doctor.doc.DocEmbedBuilder;
+import de.ialistannen.doctor.util.parsers.ArgumentParser;
+import de.ialistannen.doctor.util.parsers.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;

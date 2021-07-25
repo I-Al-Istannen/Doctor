@@ -1,9 +1,7 @@
-package de.ialistannen.docfork.commands.system;
+package de.ialistannen.doctor.commands.system;
 
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.whitespace;
-
-import de.ialistannen.docfork.util.parsers.ArgumentParser;
-import de.ialistannen.docfork.util.parsers.StringReader;
+import de.ialistannen.doctor.util.parsers.ArgumentParser;
+import de.ialistannen.doctor.util.parsers.StringReader;
 import java.util.Optional;
 
 public class CommandContext {

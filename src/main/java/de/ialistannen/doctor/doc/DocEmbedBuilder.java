@@ -1,10 +1,10 @@
-package de.ialistannen.docfork.doc;
+package de.ialistannen.doctor.doc;
 
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
-import de.ialistannen.docfork.util.DeclarationFormatter;
-import de.ialistannen.docfork.util.parsers.ParseError;
+import de.ialistannen.doctor.util.DeclarationFormatter;
+import de.ialistannen.doctor.util.parsers.ParseError;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;

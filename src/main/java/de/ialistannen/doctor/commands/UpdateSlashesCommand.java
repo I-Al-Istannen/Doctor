@@ -1,12 +1,12 @@
-package de.ialistannen.docfork.commands;
+package de.ialistannen.doctor.commands;
 
-import static de.ialistannen.docfork.util.parsers.ArgumentParsers.literal;
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.literal;
 
-import de.ialistannen.docfork.util.parsers.ArgumentParser;
-import de.ialistannen.docfork.commands.system.Command;
-import de.ialistannen.docfork.commands.system.CommandContext;
-import de.ialistannen.docfork.commands.system.Executor;
-import de.ialistannen.docfork.commands.system.MessageCommandSource;
+import de.ialistannen.doctor.util.parsers.ArgumentParser;
+import de.ialistannen.doctor.commands.system.Command;
+import de.ialistannen.doctor.commands.system.CommandContext;
+import de.ialistannen.doctor.commands.system.Executor;
+import de.ialistannen.doctor.commands.system.MessageCommandSource;
 import java.util.stream.Collectors;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;

@@ -1,6 +1,6 @@
-package de.ialistannen.docfork.commands.system;
+package de.ialistannen.doctor.commands.system;
 
-import de.ialistannen.docfork.util.parsers.ArgumentParser;
+import de.ialistannen.doctor.util.parsers.ArgumentParser;
 import java.util.Optional;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
