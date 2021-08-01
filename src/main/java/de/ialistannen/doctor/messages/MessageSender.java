@@ -31,4 +31,11 @@ public interface MessageSender {
   default RestAction<SentMessageHandle> editOrReply(String message) {
     return editOrReply(new MessageBuilder(message).build());
   }
+
+  /**
+   * Deletes this message.
+   *
+   * @return the action
+   */
+  RestAction<Void> delete();
 }

@@ -1,10 +1,10 @@
 package de.ialistannen.doctor;
 
 import de.ialistannen.doctor.commands.DocCommand;
+import de.ialistannen.doctor.commands.EditReplyCommand;
 import de.ialistannen.doctor.commands.UpdateSlashesCommand;
 import de.ialistannen.doctor.commands.system.Executor;
 import de.ialistannen.doctor.doc.DocResultSender;
-import de.ialistannen.doctor.reactions.ReactionListener;
 import de.ialistannen.doctor.state.MessageDataStore;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
@@ -59,9 +59,9 @@ public class Main {
                 resultSender,
                 messageDataStore
             ),
-            new UpdateSlashesCommand()
+            new UpdateSlashesCommand(),
+            new EditReplyCommand(messageDataStore, resultSender)
         )))
-        .addEventListeners(new ReactionListener(messageDataStore, resultSender))
         .build()
         .setRequiredScopes("applications.commands")
         .awaitReady();

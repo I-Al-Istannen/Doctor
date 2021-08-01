@@ -7,16 +7,23 @@ public class ActiveInteractions {
 
   private final Map<Integer, String> choices;
   private final boolean shortDescription;
+  private final boolean omitTags;
   private final String userId;
 
-  public ActiveInteractions(Map<Integer, String> choices, boolean shortDescription, String userId) {
+  public ActiveInteractions(Map<Integer, String> choices, boolean shortDescription,
+      boolean omitTags, String userId) {
     this.shortDescription = shortDescription;
+    this.omitTags = omitTags;
     this.userId = userId;
     this.choices = choices;
   }
 
   public boolean isShortDescription() {
     return shortDescription;
+  }
+
+  public boolean isOmitTags() {
+    return omitTags;
   }
 
   public String getUserId() {

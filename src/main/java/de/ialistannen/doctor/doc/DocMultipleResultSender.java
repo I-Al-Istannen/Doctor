@@ -43,7 +43,7 @@ public class DocMultipleResultSender {
   }
 
   public void replyMultipleResults(CommandSource source, MessageSender sender,
-      boolean shortDescription, Set<FuzzyQueryResult> results) {
+      boolean shortDescription, boolean omitTags, Set<FuzzyQueryResult> results) {
 
     Map<String, FuzzyQueryResult> nameResultMap = results.stream().collect(toMap(
         it -> it.getQualifiedName().asString(),
@@ -83,6 +83,7 @@ public class DocMultipleResultSender {
                     .map(it -> it.getValue().getQualifiedName().asString())
             ),
             shortDescription,
+            omitTags,
             source.getAuthorId()
         )
     );

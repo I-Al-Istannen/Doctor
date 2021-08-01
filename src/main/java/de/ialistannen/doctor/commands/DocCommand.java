@@ -95,7 +95,7 @@ public class DocCommand implements Command {
         source,
         query,
         !source.getOption("long").map(OptionMapping::getAsBoolean).orElse(false),
-        source.getOption("omit-tags").map(OptionMapping::getAsBoolean).orElse(false),
+        source.getOption("omit-tags").map(OptionMapping::getAsBoolean).orElse(true),
         sender
     );
   }
@@ -147,7 +147,13 @@ public class DocCommand implements Command {
       return;
     }
 
-    handleQuery(source, choice.get(), buttons.get().isShortDescription(), false, sender);
+    handleQuery(
+        source,
+        choice.get(),
+        buttons.get().isShortDescription(),
+        buttons.get().isOmitTags(),
+        sender
+    );
   }
 
   @Override
@@ -171,7 +177,7 @@ public class DocCommand implements Command {
   public void handle(CommandContext commandContext, CommandSource source, MessageSender sender) {
     Optional<String> isLong = commandContext.tryShift(literal("long"));
 
-    handleQuery(source, commandContext.shift(remaining(2)), isLong.isEmpty(), false, sender);
+    handleQuery(source, commandContext.shift(remaining(2)), isLong.isEmpty(), true, sender);
   }
 
   private void handleQuery(CommandSource source, String query, boolean shortDescription,
@@ -205,7 +211,7 @@ public class DocCommand implements Command {
       return;
     }
     docMultipleResultSender
-        .replyMultipleResults(source, sender, shortDescription, new HashSet<>(results));
+        .replyMultipleResults(source, sender, shortDescription, omitTags, new HashSet<>(results));
   }
 
   private void replyForResult(CommandSource source, FuzzyQueryResult result, boolean shortDesc,

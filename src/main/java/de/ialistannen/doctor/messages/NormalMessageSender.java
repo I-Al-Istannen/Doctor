@@ -26,4 +26,9 @@ public class NormalMessageSender implements MessageSender {
 
     return message.editMessage(newMessage).map(MessageHandle::new);
   }
+
+  @Override
+  public RestAction<Void> delete() {
+    return message.delete();
+  }
 }

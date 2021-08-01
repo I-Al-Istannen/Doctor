@@ -32,4 +32,12 @@ public class InteractionHookMessageSender implements MessageSender {
         .flatMap(message -> message.editMessage(newMessage))
         .map(MessageHandle::new);
   }
+
+  @Override
+  public RestAction<Void> delete() {
+    if (!hook.isExpired()) {
+      return hook.deleteOriginal();
+    }
+    return hook.retrieveOriginal().flatMap(Message::delete);
+  }
 }
