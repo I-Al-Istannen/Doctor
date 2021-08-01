@@ -2,9 +2,7 @@
 
 # Doctor - A Discord Javadoc bot
 
-![query](media/Method-search.png)
-
-![query](media/Method-search-answer.png)
+![video demo](media/Demo.mp4)
 
 ----
 
@@ -57,8 +55,3 @@ COPY Doctor.jar /home/doctor/Doctor.jar
 
 ENTRYPOINT ["java", "-jar", "/home/doctor/Doctor.jar", "/home/doctor/config/config.json"]
 ```
-
-### Some more screenshots
-![screenshot](media/Object-wait.png)
-
-![screenshot](media/Object-wait-answer.png)
