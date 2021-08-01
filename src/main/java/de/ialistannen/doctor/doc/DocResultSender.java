@@ -11,6 +11,9 @@ import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.interactions.components.ActionRow;
+import net.dv8tion.jda.api.interactions.components.Button;
+import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public class DocResultSender {
 

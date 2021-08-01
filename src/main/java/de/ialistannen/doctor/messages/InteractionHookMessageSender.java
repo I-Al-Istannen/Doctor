@@ -28,7 +28,8 @@ public class InteractionHookMessageSender implements MessageSender {
     if (!hook.isExpired()) {
       return hook.editOriginal(newMessage).map(it -> new InteractionHookHandle(hook, it));
     }
-    hook.retrieveOriginal().queue(message -> message.delete().queue());
-    return reply(newMessage);
+    return hook.retrieveOriginal()
+        .flatMap(message -> message.editMessage(newMessage))
+        .map(MessageHandle::new);
   }
 }
