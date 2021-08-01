@@ -24,6 +24,8 @@ import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -182,13 +184,24 @@ public class DocCommand implements Command {
 
   private void handleQuery(CommandSource source, String query, boolean shortDescription,
       boolean omitTags, MessageSender sender) {
+    Instant start = Instant.now();
+
     List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
         .stream()
         .distinct()
         .collect(toList());
 
+    Instant end = Instant.now();
+
     if (results.size() == 1) {
-      replyForResult(source, results.get(0), shortDescription, omitTags, sender);
+      replyForResult(
+          source,
+          results.get(0),
+          shortDescription,
+          omitTags,
+          sender,
+          Duration.between(start, end)
+      );
       return;
     }
 
@@ -198,7 +211,14 @@ public class DocCommand implements Command {
           .findFirst()
           .orElseThrow();
 
-      replyForResult(source, result, shortDescription, omitTags, sender);
+      replyForResult(
+          source,
+          result,
+          shortDescription,
+          omitTags,
+          sender,
+          Duration.between(start, end)
+      );
       return;
     }
 
@@ -215,14 +235,20 @@ public class DocCommand implements Command {
   }
 
   private void replyForResult(CommandSource source, FuzzyQueryResult result, boolean shortDesc,
-      boolean omitTags, MessageSender sender) {
+      boolean omitTags, MessageSender sender, Duration queryDuration) {
     Collection<LoadResult<JavadocElement>> elements = loader.findByQualifiedName(
         result.getQualifiedName()
     );
 
     if (elements.size() == 1) {
-      docResultSender
-          .replyWithResult(source, sender, elements.iterator().next(), shortDesc, omitTags);
+      docResultSender.replyWithResult(
+          source,
+          sender,
+          elements.iterator().next(),
+          shortDesc,
+          omitTags,
+          queryDuration
+      );
     } else {
       sender
           .reply(

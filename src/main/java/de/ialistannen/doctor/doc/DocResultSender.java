@@ -11,6 +11,7 @@ import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import net.dv8tion.jda.api.MessageBuilder;
@@ -33,7 +34,8 @@ public class DocResultSender {
   }
 
   public void replyWithResult(CommandSource source, MessageSender sender,
-      LoadResult<JavadocElement> loadResult, boolean shortDesc, boolean omitTags) {
+      LoadResult<JavadocElement> loadResult, boolean shortDesc, boolean omitTags,
+      Duration queryDuration) {
     DocEmbedBuilder docEmbedBuilder = new DocEmbedBuilder(
         renderer,
         loadResult.getResult(),
@@ -42,7 +44,7 @@ public class DocResultSender {
         .addColor()
         .addIcon(linkResolveStrategy)
         .addDeclaration()
-        .addFooter(loadResult.getLoader().toString());
+        .addFooter(loadResult.getLoader().toString(), queryDuration);
 
     if (shortDesc) {
       docEmbedBuilder.addShortDescription();

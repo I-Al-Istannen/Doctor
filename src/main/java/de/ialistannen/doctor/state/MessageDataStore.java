@@ -33,27 +33,27 @@ public class MessageDataStore {
    *     interaction id we can use to retrieve it later
    * @param interaction the interaction to store
    */
-  public void addActiveInteraction(String id, ActiveInteractions interaction) {
+  public synchronized void addActiveInteraction(String id, ActiveInteractions interaction) {
     interactions.put(id, interaction);
   }
 
-  public Optional<ActiveInteractions> getActiveInteraction(String id) {
+  public synchronized Optional<ActiveInteractions> getActiveInteraction(String id) {
     return Optional.ofNullable(interactions.get(id));
   }
 
-  public void removeActiveInteraction(String id) {
+  public synchronized void removeActiveInteraction(String id) {
     interactions.remove(id);
   }
 
-  public void addReply(String messageId, BotReply reply) {
+  public synchronized void addReply(String messageId, BotReply reply) {
     botReplies.put(messageId, reply);
   }
 
-  public void removeReply(String messageId) {
+  public synchronized void removeReply(String messageId) {
     botReplies.remove(messageId);
   }
 
-  public Optional<BotReply> getReply(String messageId) {
+  public synchronized Optional<BotReply> getReply(String messageId) {
     return Optional.ofNullable(botReplies.get(messageId));
   }
 }

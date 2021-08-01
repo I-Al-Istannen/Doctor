@@ -16,6 +16,7 @@ import de.ialistannen.javadocapi.model.types.JavadocType.Type;
 import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import java.awt.Color;
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
@@ -196,8 +197,10 @@ public class DocEmbedBuilder {
     return this;
   }
 
-  public DocEmbedBuilder addFooter(String source) {
-    embedBuilder.setFooter("Query resolved from index '" + source + "'");
+  public DocEmbedBuilder addFooter(String source, Duration queryDuration) {
+    embedBuilder.setFooter(
+        "Query resolved from index '" + source + "' in " + queryDuration.toMillis() + "ms"
+    );
 
     return this;
   }

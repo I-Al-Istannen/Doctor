@@ -12,6 +12,7 @@ import de.ialistannen.doctor.messages.MessageSender;
 import de.ialistannen.doctor.state.BotReply;
 import de.ialistannen.doctor.state.MessageDataStore;
 import de.ialistannen.doctor.util.parsers.ArgumentParser;
+import java.time.Duration;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -77,7 +78,8 @@ public class EditReplyCommand implements Command {
         sender,
         botReply.getElement(),
         shortDescription,
-        omitTags
+        omitTags,
+        Duration.ofMillis(0)
     );
   }
 
