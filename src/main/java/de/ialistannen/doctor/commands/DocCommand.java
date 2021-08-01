@@ -5,6 +5,8 @@ import static de.ialistannen.doctor.util.parsers.ArgumentParsers.integer;
 import static de.ialistannen.doctor.util.parsers.ArgumentParsers.literal;
 import static de.ialistannen.doctor.util.parsers.ArgumentParsers.remaining;
 import static de.ialistannen.doctor.util.parsers.ArgumentParsers.word;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
 
@@ -12,6 +14,7 @@ import de.ialistannen.doctor.commands.system.ButtonCommandSource;
 import de.ialistannen.doctor.commands.system.Command;
 import de.ialistannen.doctor.commands.system.CommandContext;
 import de.ialistannen.doctor.commands.system.CommandSource;
+import de.ialistannen.doctor.commands.system.SelectionMenuCommandSource;
 import de.ialistannen.doctor.commands.system.SlashCommandSource;
 import de.ialistannen.doctor.doc.DocEmbedBuilder;
 import de.ialistannen.doctor.util.StreamUtils;
@@ -21,6 +24,7 @@ import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
+import de.ialistannen.javadocapi.querying.QueryResult.ElementType;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader;
@@ -33,6 +37,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -48,8 +53,10 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.Button;
 import net.dv8tion.jda.api.interactions.components.ButtonStyle;
-import net.dv8tion.jda.api.interactions.components.Component;
 import net.dv8tion.jda.api.interactions.components.Component.Type;
+import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
+import org.apache.commons.lang3.StringUtils;
 
 public class DocCommand implements Command {
 
@@ -122,8 +129,22 @@ public class DocCommand implements Command {
 
   @Override
   public void handle(CommandContext commandContext, ButtonCommandSource source) {
-    Integer id = commandContext.shift(integer());
+    Integer choiceId = commandContext.shift(integer());
     String buttonId = commandContext.shift(word());
+
+    handleStoredInteraction(
+        source,
+        choiceId,
+        buttonId,
+        () -> source.getEvent()
+            .reply("\uD83D\uDE94 Are you trying to steal those buttons? \uD83D\uDE94")
+            .setEphemeral(true)
+            .queue()
+    );
+  }
+
+  private void handleStoredInteraction(CommandSource source, Integer id, String buttonId,
+      Runnable onPermissionDenied) {
     ActiveInteractions buttons = this.activeInteractions.get(buttonId);
 
     if (buttons == null) {
@@ -134,10 +155,7 @@ public class DocCommand implements Command {
     }
 
     if (!Objects.equals(source.getAuthorId(), buttons.getUserId())) {
-      source.getEvent()
-          .reply("\uD83D\uDE94 Are you trying to steal those buttons? \uD83D\uDE94")
-          .setEphemeral(true)
-          .queue();
+      onPermissionDenied.run();
       return;
     }
 
@@ -153,6 +171,21 @@ public class DocCommand implements Command {
     }
 
     handleQuery(source, choice.get(), buttons.isShortDescription(), false);
+  }
+
+  @Override
+  public void handle(CommandContext commandContext, SelectionMenuCommandSource source) {
+    String buttonId = commandContext.shift(word());
+
+    handleStoredInteraction(
+        source,
+        Integer.parseInt(source.getOption()),
+        buttonId,
+        () -> source.getEvent()
+            .reply("\uD83D\uDE94 Checkbox theft is a crime! \uD83D\uDE94")
+            .setEphemeral(true)
+            .queue()
+    );
   }
 
   @Override
@@ -178,7 +211,7 @@ public class DocCommand implements Command {
       FuzzyQueryResult result = results.stream()
           .filter(FuzzyQueryResult::isExact)
           .findFirst()
-          .get();
+          .orElseThrow();
 
       replyForResult(source, result, shortDescription, omitTags);
       return;
@@ -249,9 +282,14 @@ public class DocCommand implements Command {
         )
         .collect(toList());
 
-    List<ActionRow> rows = buildRowsButton(labelResultList, source);
+    List<ActionRow> rows;
+    if (labelResultList.size() <= 5 * Type.BUTTON.getMaxPerRow()) {
+      rows = buildRowsButton(labelResultList, source);
+    } else {
+      rows = buildRowsMenu(labelResultList, source);
+    }
 
-    Message message = new MessageBuilder("I found (at least) the following types:  \n")
+    Message message = new MessageBuilder("I found (at least) the following Elements:  \n")
         .setActionRows(rows)
         .build();
 
@@ -291,13 +329,63 @@ public class DocCommand implements Command {
             buttons.add(Button.of(
                 exact ? ButtonStyle.PRIMARY : ButtonStyle.SECONDARY,
                 command,
-                label,
+                StringUtils.abbreviate(label, 80),
                 getEmoji(entry.getValue())
             ));
           }
 
           return ActionRow.of(buttons);
         })
+        .collect(toList());
+  }
+
+  private List<ActionRow> buildRowsMenu(List<Entry<String, FuzzyQueryResult>> results,
+      CommandSource source) {
+    var counter = new Object() {
+      int counter = 0;
+    };
+
+    Map<ElementType, List<SelectOption>> grouped = results.stream()
+        .collect(groupingBy(
+            it -> it.getValue().getType(),
+            mapping(
+                it -> {
+                  QualifiedName name = it.getValue().getQualifiedName();
+                  String command = String.valueOf(counter.counter++);
+
+                  String label;
+                  if (name.asString().contains("#")) {
+                    label = name.getLexicalParent()
+                        .map(p -> p.getSimpleName() + "#")
+                        .orElse("");
+                    label += name.getSimpleName();
+                  } else {
+                    label = name.getSimpleName();
+                  }
+
+                  label = StringUtils.abbreviateMiddle(label, "...", 25);
+
+                  return SelectOption
+                      .of(
+                          label,
+                          command
+                      )
+                      .withDescription(StringUtils.abbreviate(it.getKey(), 50))
+                      .withEmoji(getEmoji(it.getValue()));
+                },
+                toList()
+            )
+        ));
+
+    return grouped.entrySet().stream()
+        .limit(5)
+        .map(it ->
+            SelectionMenu.create("!javadoc " + source.getId())
+                .addOptions(it.getValue().stream().limit(25).collect(toList()))
+                .setPlaceholder(StringUtils.capitalize(it.getKey().name().toLowerCase(Locale.ROOT)))
+                .build()
+        )
+        .map(ActionRow::of)
         .collect(toList());
   }
 

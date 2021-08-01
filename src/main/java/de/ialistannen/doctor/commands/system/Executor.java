@@ -9,9 +9,11 @@ import java.util.Optional;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.selections.SelectionMenuInteraction;
 import org.jetbrains.annotations.NotNull;
 
 public class Executor extends ListenerAdapter {
@@ -44,6 +46,27 @@ public class Executor extends ListenerAdapter {
             () -> command.handle(new CommandContext(reader), source)
         )
     );
+  }
+
+  @Override
+  public void onSelectionMenu(@NotNull SelectionMenuEvent event) {
+    SelectionMenuInteraction interaction = event.getInteraction();
+    if (interaction.getValues().size() != 1) {
+      event.reply("Sorry, I can't really handle multiple/none options right now.")
+          .setEphemeral(true)
+          .queue();
+      return;
+    }
+    StringReader reader = new StringReader(interaction.getComponentId());
+    Optional<Command> command = findCommand(reader);
+
+    if (command.isEmpty()) {
+      event.reply("I couldn't find a command to handle this :/").setEphemeral(true).queue();
+      return;
+    }
+
+    SelectionMenuCommandSource source = new SelectionMenuCommandSource(event);
+    handleCommandError(source, () -> command.get().handle(new CommandContext(reader), source));
   }
 
   @Override

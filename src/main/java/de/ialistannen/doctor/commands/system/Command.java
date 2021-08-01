@@ -22,6 +22,8 @@ public interface Command {
       handle(commandContext, (ButtonCommandSource) source);
     } else if (source instanceof SlashCommandSource) {
       handle(commandContext, (SlashCommandSource) source);
+    } else if (source instanceof SelectionMenuCommandSource) {
+      handle(commandContext, (SelectionMenuCommandSource) source);
     }
   }
 
@@ -30,6 +32,10 @@ public interface Command {
   }
 
   default void handle(CommandContext commandContext, ButtonCommandSource source) {
+    handle(commandContext, (CommandSource) source);
+  }
+
+  default void handle(CommandContext commandContext, SelectionMenuCommandSource source) {
     handle(commandContext, (CommandSource) source);
   }
 
