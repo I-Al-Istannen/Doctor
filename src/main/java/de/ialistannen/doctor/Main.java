@@ -3,7 +3,12 @@ package de.ialistannen.doctor;
 import de.ialistannen.doctor.commands.DocCommand;
 import de.ialistannen.doctor.commands.UpdateSlashesCommand;
 import de.ialistannen.doctor.commands.system.Executor;
+import de.ialistannen.doctor.doc.DocResultSender;
+import de.ialistannen.doctor.reactions.ReactionListener;
+import de.ialistannen.doctor.state.MessageDataStore;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
+import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
+import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.AggregatedElementLoader;
 import de.ialistannen.javadocapi.storage.ConfiguredGson;
 import de.ialistannen.javadocapi.storage.ElementLoader;
@@ -40,14 +45,23 @@ public class Main {
       ));
     }
 
+    MessageDataStore messageDataStore = new MessageDataStore();
+    DocResultSender resultSender = new DocResultSender(
+        new MarkdownCommentRenderer(new Java11PlusLinkResolver()),
+        new Java11PlusLinkResolver(),
+        messageDataStore
+    );
     JDA jda = JDABuilder.createDefault(config.getToken())
         .addEventListeners(new Executor(List.of(
             new DocCommand(
                 new FuzzyElementQuery(),
-                new AggregatedElementLoader(storages)
+                new AggregatedElementLoader(storages),
+                resultSender,
+                messageDataStore
             ),
             new UpdateSlashesCommand()
         )))
+        .addEventListeners(new ReactionListener(messageDataStore, resultSender))
         .build()
         .setRequiredScopes("applications.commands")
         .awaitReady();

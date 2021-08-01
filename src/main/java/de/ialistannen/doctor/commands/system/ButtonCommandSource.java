@@ -1,8 +1,6 @@
 package de.ialistannen.doctor.commands.system;
 
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public class ButtonCommandSource implements CommandSource {
 
@@ -24,20 +22,5 @@ public class ButtonCommandSource implements CommandSource {
   @Override
   public String getId() {
     return event.getId();
-  }
-
-  @Override
-  public String rawText() {
-    return event.getButton().getLabel();
-  }
-
-  @Override
-  public RestAction<?> reply(Message message) {
-    return event.reply(message);
-  }
-
-  @Override
-  public RestAction<?> editOrReply(Message message) {
-    return event.editMessage(message);
   }
 }

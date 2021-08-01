@@ -2,7 +2,6 @@ package de.ialistannen.doctor.commands.system;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public class MessageCommandSource implements CommandSource {
 
@@ -28,20 +27,5 @@ public class MessageCommandSource implements CommandSource {
   @Override
   public String getAuthorId() {
     return message.getAuthor().getId();
-  }
-
-  @Override
-  public String rawText() {
-    return message.getContentRaw();
-  }
-
-  @Override
-  public RestAction<?> reply(Message message) {
-    return getChannel().sendMessage(message);
-  }
-
-  @Override
-  public RestAction<?> editOrReply(Message message) {
-    return reply(message);
   }
 }

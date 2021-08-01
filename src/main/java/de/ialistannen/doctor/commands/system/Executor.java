@@ -1,5 +1,8 @@
 package de.ialistannen.doctor.commands.system;
 
+import de.ialistannen.doctor.messages.InitialInteractionMessageSender;
+import de.ialistannen.doctor.messages.MessageSender;
+import de.ialistannen.doctor.messages.NormalMessageSender;
 import de.ialistannen.doctor.util.parsers.ParseError;
 import de.ialistannen.doctor.util.parsers.StringReader;
 import java.awt.Color;
@@ -38,12 +41,13 @@ public class Executor extends ListenerAdapter {
       return;
     }
 
+    MessageSender sender = new NormalMessageSender(event.getMessage());
     MessageCommandSource source = new MessageCommandSource(event.getMessage());
     StringReader reader = new StringReader(event.getMessage().getContentRaw());
     findCommand(reader).ifPresent(
         command -> handleCommandError(
-            source,
-            () -> command.handle(new CommandContext(reader), source)
+            sender,
+            () -> command.handle(new CommandContext(reader), source, sender)
         )
     );
   }
@@ -65,8 +69,12 @@ public class Executor extends ListenerAdapter {
       return;
     }
 
+    MessageSender sender = new InitialInteractionMessageSender(interaction);
     SelectionMenuCommandSource source = new SelectionMenuCommandSource(event);
-    handleCommandError(source, () -> command.get().handle(new CommandContext(reader), source));
+    handleCommandError(
+        sender,
+        () -> command.get().handle(new CommandContext(reader), source, sender)
+    );
   }
 
   @Override
@@ -88,8 +96,12 @@ public class Executor extends ListenerAdapter {
       return;
     }
 
+    MessageSender sender = new InitialInteractionMessageSender(event);
     ButtonCommandSource source = new ButtonCommandSource(event);
-    handleCommandError(source, () -> command.get().handle(new CommandContext(reader), source));
+    handleCommandError(
+        sender,
+        () -> command.get().handle(new CommandContext(reader), source, sender)
+    );
   }
 
   @Override
@@ -103,8 +115,12 @@ public class Executor extends ListenerAdapter {
       return;
     }
 
+    MessageSender sender = new InitialInteractionMessageSender(event);
     SlashCommandSource source = new SlashCommandSource(event);
-    handleCommandError(source, () -> command.get().handle(new CommandContext(reader), source));
+    handleCommandError(
+        sender,
+        () -> command.get().handle(new CommandContext(reader), source, sender)
+    );
   }
 
   private Optional<Command> findCommand(StringReader reader) {
@@ -124,11 +140,11 @@ public class Executor extends ListenerAdapter {
     return Optional.empty();
   }
 
-  private void handleCommandError(CommandSource source, Runnable runnable) {
+  private void handleCommandError(MessageSender sender, Runnable runnable) {
     try {
       runnable.run();
     } catch (ParseError e) {
-      source.editOrReply(
+      sender.editOrReply(
           new MessageBuilder()
               .setEmbeds(
                   new EmbedBuilder()

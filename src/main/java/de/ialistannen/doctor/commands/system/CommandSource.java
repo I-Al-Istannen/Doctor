@@ -1,26 +1,17 @@
 package de.ialistannen.doctor.commands.system;
 
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.requests.RestAction;
-
 public interface CommandSource {
 
-  String rawText();
-
+  /**
+   * Returns the id of the source. This can be an interaction id, button click id, message id or
+   * something similar.
+   *
+   * @return the id of this source
+   */
   String getId();
 
+  /**
+   * @return the id of the author
+   */
   String getAuthorId();
-
-  RestAction<?> reply(Message message);
-
-  default RestAction<?> reply(String message) {
-    return this.reply(new MessageBuilder(message).build());
-  }
-
-  RestAction<?> editOrReply(Message message);
-
-  default RestAction<?> editOrReply(String message) {
-    return editOrReply(new MessageBuilder(message).build());
-  }
 }

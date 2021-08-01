@@ -1,11 +1,8 @@
 package de.ialistannen.doctor.commands.system;
 
 import java.util.Optional;
-import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
-import net.dv8tion.jda.api.requests.RestAction;
 
 public class SlashCommandSource implements CommandSource {
 
@@ -19,6 +16,10 @@ public class SlashCommandSource implements CommandSource {
     return event;
   }
 
+  public Optional<OptionMapping> getOption(String name) {
+    return Optional.ofNullable(event.getOption(name));
+  }
+
   @Override
   public String getId() {
     return event.getId();
@@ -27,28 +28,5 @@ public class SlashCommandSource implements CommandSource {
   @Override
   public String getAuthorId() {
     return event.getUser().getId();
-  }
-
-  @Override
-  public String rawText() {
-    return event.getOptions().stream()
-        .filter(it -> it.getType() == OptionType.STRING)
-        .map(OptionMapping::getAsString)
-        .findFirst()
-        .orElse("");
-  }
-
-  public Optional<OptionMapping> getOption(String name) {
-    return Optional.ofNullable(event.getOption(name));
-  }
-
-  @Override
-  public RestAction<?> reply(Message message) {
-    return event.reply(message);
-  }
-
-  @Override
-  public RestAction<?> editOrReply(Message message) {
-    return reply(message);
   }
 }
