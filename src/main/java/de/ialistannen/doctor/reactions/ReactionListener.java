@@ -4,6 +4,7 @@ import de.ialistannen.doctor.doc.DocResultSender;
 import de.ialistannen.doctor.state.BotReply;
 import de.ialistannen.doctor.state.MessageDataStore;
 import java.util.Optional;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.events.message.react.MessageReactionAddEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -22,13 +23,19 @@ public class ReactionListener extends ListenerAdapter {
   public void onMessageReactionAdd(@NotNull MessageReactionAddEvent event) {
     Optional<BotReply> reply = dataStore.getReply(event.getMessageId());
 
+    boolean canRemoveReactions = event.getGuild()
+        .getMember(event.getJDA().getSelfUser())
+        .hasPermission(Permission.MESSAGE_MANAGE);
+
     if (reply.isEmpty() || event.getUser() == null || event.getUser().isBot()) {
       return;
     }
     BotReply botReply = reply.get();
 
     if (!botReply.getSource().getAuthorId().equals(event.getUserId())) {
-      event.retrieveUser().queue(user -> event.getReaction().removeReaction(user).queue());
+      if (canRemoveReactions) {
+        event.retrieveUser().queue(user -> event.getReaction().removeReaction(user).queue());
+      }
       return;
     }
 
@@ -64,6 +71,8 @@ public class ReactionListener extends ListenerAdapter {
         omitTags
     );
 
-    event.retrieveUser().queue(user -> event.getReaction().removeReaction(user).queue());
+    if (canRemoveReactions) {
+      event.retrieveUser().queue(user -> event.getReaction().removeReaction(user).queue());
+    }
   }
 }
