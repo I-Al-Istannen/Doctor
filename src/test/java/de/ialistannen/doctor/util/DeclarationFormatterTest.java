@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
+import de.ialistannen.javadocapi.model.types.JavadocField;
 import de.ialistannen.javadocapi.model.types.JavadocMethod;
 import de.ialistannen.javadocapi.model.types.JavadocType;
 import de.ialistannen.javadocapi.model.types.PossiblyGenericType;
@@ -94,7 +95,9 @@ class DeclarationFormatterTest {
             )""",
         formatter.formatDeclaration(new FakeAnnotation(text))
     );
-  }@Test
+  }
+
+  @Test
   void annotationFormattingArrayChopMultiple() {
     String text = """
         @Deprecated(foo = {"I am", "part of", "an array", "and I will be", "chopped"}, bar = 20, hey = "foo")""";
@@ -247,6 +250,18 @@ class DeclarationFormatterTest {
     );
   }
 
+  @Test
+  void testFieldDeclaration() {
+    String text = """
+        ThisIsACoolType type""";
+
+    assertEquals(
+        """
+            ThisIsACoolType type""",
+        formatter.formatDeclaration(new FakeField(text))
+    );
+  }
+
   private static class FakeMethod extends JavadocMethod {
 
     private final String declaration;
@@ -313,4 +328,18 @@ class DeclarationFormatterTest {
     }
   }
 
+  private static class FakeField extends JavadocField {
+
+    private final String declaration;
+
+    public FakeField(String declaration) {
+      super(null, List.of(), null, null);
+      this.declaration = declaration;
+    }
+
+    @Override
+    public String getDeclaration(DeclarationStyle style) {
+      return declaration;
+    }
+  }
 }

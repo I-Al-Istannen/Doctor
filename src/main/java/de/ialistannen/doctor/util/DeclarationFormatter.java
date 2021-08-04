@@ -37,6 +37,10 @@ public class DeclarationFormatter {
       result.append(formatType(reader, (JavadocType) element));
     }
 
+    if (reader.canRead()) {
+      result.append(reader.readRemaining());
+    }
+
     return result.toString().strip();
   }
 
