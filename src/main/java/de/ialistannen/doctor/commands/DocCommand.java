@@ -20,6 +20,7 @@ import de.ialistannen.doctor.state.MessageDataStore;
 import de.ialistannen.doctor.util.parsers.ArgumentParser;
 import de.ialistannen.doctor.util.parsers.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
+import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
 import de.ialistannen.javadocapi.storage.ElementLoader;
@@ -154,7 +155,10 @@ public class DocCommand implements Command {
         choice.get(),
         buttons.get().isShortDescription(),
         buttons.get().isOmitTags(),
-        sender
+        sender,
+        () -> {
+          docResultSender.replyForReflectiveProxy(sender, new QualifiedName(choice.get()));
+        }
     );
   }
 
@@ -184,6 +188,22 @@ public class DocCommand implements Command {
 
   private void handleQuery(CommandSource source, String query, boolean shortDescription,
       boolean omitTags, MessageSender sender) {
+    handleQuery(
+        source,
+        query,
+        shortDescription,
+        omitTags,
+        sender,
+        () -> sender
+            .editOrReply(
+                "I couldn't find any result for '" + query + "' <:feelsBadMan:626724180284538890>"
+            )
+            .queue()
+    );
+  }
+
+  private void handleQuery(CommandSource source, String query, boolean shortDescription,
+      boolean omitTags, MessageSender sender, Runnable onNoResult) {
     Instant start = Instant.now();
 
     List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
@@ -222,12 +242,8 @@ public class DocCommand implements Command {
       return;
     }
 
-    if (results.size() == 0) {
-      sender
-          .editOrReply(
-              "I couldn't find any result for '" + query + "' <:feelsBadMan:626724180284538890>"
-          )
-          .queue();
+    if (results.isEmpty()) {
+      onNoResult.run();
       return;
     }
     docMultipleResultSender

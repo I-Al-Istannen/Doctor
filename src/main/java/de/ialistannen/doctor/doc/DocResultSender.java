@@ -6,7 +6,9 @@ import de.ialistannen.doctor.commands.system.CommandSource;
 import de.ialistannen.doctor.messages.MessageSender;
 import de.ialistannen.doctor.state.BotReply;
 import de.ialistannen.doctor.state.MessageDataStore;
+import de.ialistannen.doctor.util.nameproxies.NameProxyUtils;
 import de.ialistannen.javadocapi.model.JavadocElement;
+import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
@@ -14,6 +16,7 @@ import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
@@ -31,6 +34,28 @@ public class DocResultSender {
     this.renderer = renderer;
     this.linkResolveStrategy = linkResolveStrategy;
     this.dataStore = dataStore;
+  }
+
+  public void replyForReflectiveProxy(MessageSender sender, QualifiedName name) {
+    DocEmbedBuilder docEmbedBuilder = new DocEmbedBuilder(
+        renderer,
+        NameProxyUtils.forName(name),
+        "https://unknown-url.example.com"
+    )
+        .addColor()
+        .addIcon(linkResolveStrategy)
+        .addDeclaration()
+        .addFooter("proxy for unknown element", Duration.ZERO);
+
+    EmbedBuilder builder = new EmbedBuilder(docEmbedBuilder.build());
+    builder
+        .getDescriptionBuilder()
+        .append(
+            "This element was not indexed but probably inherited from a dependency. I can't really "
+                + "tell you more sadly."
+        );
+
+    sender.editOrReply(new MessageBuilder(builder.build()).build()).queue();
   }
 
   public void replyWithResult(CommandSource source, MessageSender sender,
