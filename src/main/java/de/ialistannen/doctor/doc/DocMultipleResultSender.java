@@ -78,10 +78,7 @@ public class DocMultipleResultSender {
     dataStore.addActiveInteraction(
         source.getId(),
         new ActiveInteractions(
-            StreamUtils.enumerated(
-                labelResultList.stream()
-                    .map(it -> it.getValue().getQualifiedName().asString())
-            ),
+            StreamUtils.enumerated(labelResultList.stream().map(Entry::getValue)),
             shortDescription,
             omitTags,
             source.getAuthorId()

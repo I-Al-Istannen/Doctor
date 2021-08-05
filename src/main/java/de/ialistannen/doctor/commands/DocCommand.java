@@ -25,6 +25,7 @@ import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryApi;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
+import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -141,7 +142,7 @@ public class DocCommand implements Command {
 
     this.dataStore.removeActiveInteraction(buttonId);
 
-    Optional<String> choice = buttons.get().getChoice(id);
+    Optional<FuzzyQueryResult> choice = buttons.get().getChoice(id);
 
     if (choice.isEmpty()) {
       sender
@@ -152,13 +153,15 @@ public class DocCommand implements Command {
 
     handleQuery(
         source,
-        choice.get(),
+        choice.get().getQualifiedName().asString(),
         buttons.get().isShortDescription(),
         buttons.get().isOmitTags(),
         sender,
-        () -> {
-          docResultSender.replyForReflectiveProxy(sender, new QualifiedName(choice.get()));
-        }
+        () -> docResultSender.replyForReflectiveProxy(
+            sender,
+            new QualifiedName(choice.get().getQualifiedName().asString()),
+            ((BaseUrlElementLoader) choice.get().getSourceLoader()).getLinkResolveStrategy()
+        )
     );
   }
 
@@ -257,13 +260,15 @@ public class DocCommand implements Command {
     );
 
     if (elements.size() == 1) {
+      LoadResult<JavadocElement> loadResult = elements.iterator().next();
       docResultSender.replyWithResult(
           source,
           sender,
-          elements.iterator().next(),
+          loadResult,
           shortDesc,
           omitTags,
-          queryDuration
+          queryDuration,
+          ((BaseUrlElementLoader) loadResult.getLoader()).getLinkResolveStrategy()
       );
     } else {
       sender

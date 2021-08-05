@@ -25,20 +25,16 @@ import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 
 public class DocResultSender {
 
-  private final MarkdownCommentRenderer renderer;
-  private final LinkResolveStrategy linkResolveStrategy;
   private final MessageDataStore dataStore;
 
-  public DocResultSender(MarkdownCommentRenderer renderer, LinkResolveStrategy linkResolveStrategy,
-      MessageDataStore dataStore) {
-    this.renderer = renderer;
-    this.linkResolveStrategy = linkResolveStrategy;
+  public DocResultSender(MessageDataStore dataStore) {
     this.dataStore = dataStore;
   }
 
-  public void replyForReflectiveProxy(MessageSender sender, QualifiedName name) {
+  public void replyForReflectiveProxy(MessageSender sender, QualifiedName name,
+      LinkResolveStrategy linkResolveStrategy) {
     DocEmbedBuilder docEmbedBuilder = new DocEmbedBuilder(
-        renderer,
+        new MarkdownCommentRenderer(linkResolveStrategy),
         NameProxyUtils.forName(name),
         "https://unknown-url.example.com"
     )
@@ -60,9 +56,9 @@ public class DocResultSender {
 
   public void replyWithResult(CommandSource source, MessageSender sender,
       LoadResult<JavadocElement> loadResult, boolean shortDesc, boolean omitTags,
-      Duration queryDuration) {
+      Duration queryDuration, LinkResolveStrategy linkResolveStrategy) {
     DocEmbedBuilder docEmbedBuilder = new DocEmbedBuilder(
-        renderer,
+        new MarkdownCommentRenderer(linkResolveStrategy),
         loadResult.getResult(),
         ((BaseUrlElementLoader) loadResult.getLoader()).getBaseUrl()
     )
@@ -102,7 +98,7 @@ public class DocResultSender {
         .queue(
             messageHandle -> dataStore.addReply(
                 messageHandle.getId(),
-                new BotReply(messageHandle, loadResult, source, shortDesc, omitTags)
+                new BotReply(loadResult.getLoader(), loadResult, source, shortDesc, omitTags)
             )
         );
   }

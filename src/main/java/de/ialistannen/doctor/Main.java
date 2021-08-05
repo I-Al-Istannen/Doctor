@@ -6,14 +6,17 @@ import de.ialistannen.doctor.commands.UpdateSlashesCommand;
 import de.ialistannen.doctor.commands.system.Executor;
 import de.ialistannen.doctor.doc.DocResultSender;
 import de.ialistannen.doctor.state.MessageDataStore;
+import de.ialistannen.javadocapi.indexing.OnlineJavadocIndexer;
 import de.ialistannen.javadocapi.querying.FuzzyElementQuery;
 import de.ialistannen.javadocapi.rendering.Java11PlusLinkResolver;
-import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.AggregatedElementLoader;
 import de.ialistannen.javadocapi.storage.ConfiguredGson;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.SqliteStorage;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
+import de.ialistannen.javadocapi.util.ExternalJavadocReference;
+import java.io.IOException;
+import java.net.http.HttpClient;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,16 +44,14 @@ public class Main {
               ConfiguredGson.create(),
               Path.of(database.getPath())
           ),
-          database.getBaseUrl()
+          database.getBaseUrl(),
+          indexExternalJavadoc(database.getExternalJavadocs()),
+          new Java11PlusLinkResolver()
       ));
     }
 
     MessageDataStore messageDataStore = new MessageDataStore();
-    DocResultSender resultSender = new DocResultSender(
-        new MarkdownCommentRenderer(new Java11PlusLinkResolver()),
-        new Java11PlusLinkResolver(),
-        messageDataStore
-    );
+    DocResultSender resultSender = new DocResultSender(messageDataStore);
     JDA jda = JDABuilder.createDefault(config.getToken())
         .addEventListeners(new Executor(List.of(
             new DocCommand(
@@ -67,6 +68,23 @@ public class Main {
         .awaitReady();
 
     System.out.println(jda.getInviteUrl(Permission.MESSAGE_WRITE));
+  }
+
+  private static List<ExternalJavadocReference> indexExternalJavadoc(List<String> urls)
+      throws IOException, InterruptedException {
+    if (urls == null) {
+      return List.of();
+    }
+
+    OnlineJavadocIndexer indexer = new OnlineJavadocIndexer(HttpClient.newHttpClient());
+    List<ExternalJavadocReference> references = new ArrayList<>();
+
+    for (String url : urls) {
+      ExternalJavadocReference reference = indexer.fetchPackages(url);
+      references.add(reference);
+    }
+
+    return references;
   }
 
   private static class Config {
@@ -92,10 +110,12 @@ public class Main {
 
     private String path;
     private String baseUrl;
+    private List<String> externalJavadocs;
 
-    public Database(String path, String baseUrl) {
+    public Database(String path, String baseUrl, List<String> externalJavadocs) {
       this.path = path;
       this.baseUrl = baseUrl;
+      this.externalJavadocs = externalJavadocs;
     }
 
     public String getPath() {
@@ -104,6 +124,10 @@ public class Main {
 
     public String getBaseUrl() {
       return baseUrl;
+    }
+
+    public List<String> getExternalJavadocs() {
+      return externalJavadocs;
     }
   }
 }
