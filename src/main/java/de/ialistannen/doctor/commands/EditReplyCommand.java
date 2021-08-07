@@ -48,7 +48,7 @@ public class EditReplyCommand implements Command {
     BotReply botReply = reply.get();
 
     if (!botReply.getSource().getAuthorId().equals(source.getAuthorId())) {
-      source.getEvent().reply("This not for you to decide...").setEphemeral(true).queue();
+      source.getEvent().reply("This is not for you to decide...").setEphemeral(true).queue();
       return;
     }
 
