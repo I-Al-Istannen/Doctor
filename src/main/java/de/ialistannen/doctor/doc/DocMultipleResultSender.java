@@ -159,7 +159,7 @@ public class DocMultipleResultSender {
     return grouped.entrySet().stream()
         .limit(5)
         .map(it ->
-            SelectionMenu.create("!javadoc " + source.getId())
+            SelectionMenu.create("!javadoc " + source.getId() + " " + counter.counter++)
                 .addOptions(it.getValue().stream().limit(25).collect(toList()))
                 .setPlaceholder(StringUtils.capitalize(it.getKey().name().toLowerCase(Locale.ROOT)))
                 .build()
