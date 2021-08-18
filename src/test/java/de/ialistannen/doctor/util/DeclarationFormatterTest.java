@@ -186,7 +186,7 @@ class DeclarationFormatterTest {
               extends SomeVeryLongClass
               implements A, B, C, D, MoreClasses""",
         formatter.formatDeclaration(new FakeType(
-            text, new QualifiedName(""), List.of(new QualifiedName(""))
+            text, new QualifiedName("FooBar"), List.of(new QualifiedName(""))
         ))
     );
   }
@@ -203,7 +203,23 @@ class DeclarationFormatterTest {
               implements A<Map<Int, String>>,
                          B<List<StringBuilder>>""",
         formatter.formatDeclaration(new FakeType(
-            text, new QualifiedName(""), List.of(new QualifiedName(""))
+            text, new QualifiedName("FooBar"), List.of(new QualifiedName(""))
+        ))
+    );
+  }
+
+  @Test
+  void testTypeChopGenericExtends() {
+    String text = """
+        public abstract class EnumSet<E extends Enum<E>> extends AbstractSet<E> implements Cloneable, Serializable""";
+
+    assertEquals(
+        """
+            public abstract class EnumSet<E extends Enum<E>>
+              extends AbstractSet<E>
+              implements Cloneable, Serializable""",
+        formatter.formatDeclaration(new FakeType(
+            text, new QualifiedName("EnumSet"), List.of(new QualifiedName(""))
         ))
     );
   }
@@ -227,7 +243,7 @@ class DeclarationFormatterTest {
                          RootPaneContainer,
                          TransferHandler.HasGetTransferHandler""",
         formatter.formatDeclaration(new FakeType(
-            text, new QualifiedName(""), List.of(new QualifiedName(""))
+            text, new QualifiedName("JFrame"), List.of(new QualifiedName(""))
         ))
     );
   }
@@ -245,7 +261,7 @@ class DeclarationFormatterTest {
             )
             public static class Foo<T> extends A implements B""",
         formatter.formatDeclaration(new FakeType(
-            text, new QualifiedName(""), List.of(new QualifiedName(""))
+            text, new QualifiedName("Foo"), List.of(new QualifiedName(""))
         ))
     );
   }
@@ -281,9 +297,9 @@ class DeclarationFormatterTest {
 
     private final String declaration;
 
-    public FakeType(String declaration, QualifiedName superclass, List<QualifiedName> interfaces) {
+    public FakeType(String declaration, QualifiedName name, List<QualifiedName> interfaces) {
       super(
-          null,
+          name,
           List.of(),
           List.of(),
           null,
@@ -293,7 +309,7 @@ class DeclarationFormatterTest {
           interfaces.stream()
               .map(it -> new PossiblyGenericType(it, List.of()))
               .collect(Collectors.toList()),
-          new PossiblyGenericType(superclass, List.of())
+          new PossiblyGenericType(new QualifiedName(""), List.of())
       );
       this.declaration = declaration;
     }

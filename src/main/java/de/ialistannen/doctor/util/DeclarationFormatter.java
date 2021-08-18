@@ -95,8 +95,15 @@ public class DeclarationFormatter {
 
     if (element.getSuperClass() != null) {
       String rest = input.peekWhile(c -> true);
-      int index = rest.indexOf(" extends ");
-      result.append(input.readChars(index));
+      int classIndex = rest.indexOf(element.getQualifiedName().getSimpleName());
+      result.append(input.readChars(classIndex));
+      result.append(input.readChars(element.getQualifiedName().getSimpleName().length()));
+      // Read generics using the nested parser so "extends" doesn't get lost
+      if (input.peek() == '<') {
+        result.append("<")
+            .append(nestedQuote('<', '>').parse(input).getOrThrow())
+            .append(">");
+      }
 
       String extendsKeyword = input.assertRead(" extends ");
       String superclass = input.readWhile(Character::isJavaIdentifierPart);
