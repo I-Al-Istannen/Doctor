@@ -244,6 +244,22 @@ public class DocCommand implements Command {
       );
       return;
     }
+    if (results.stream().filter(FuzzyQueryResult::isCaseSensitiveExact).count() == 1) {
+      FuzzyQueryResult result = results.stream()
+          .filter(FuzzyQueryResult::isCaseSensitiveExact)
+          .findFirst()
+          .orElseThrow();
+
+      replyForResult(
+          source,
+          result,
+          shortDescription,
+          omitTags,
+          sender,
+          Duration.between(start, end)
+      );
+      return;
+    }
 
     if (results.isEmpty()) {
       onNoResult.run();
