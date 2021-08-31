@@ -88,8 +88,8 @@ public class EditReplyCommand implements Command {
   public enum MessageCommand {
     COLLAPSE("\u23EB", "Collapse", "collapse"),
     EXPAND("\u23EC", "Expand", "expand"),
-    REMOVE_TAGS("\u2702\uFE0F", "Remove Tags", "remove_tags"),
-    ADD_TAGS("\uD83D\uDCDD", "Add Tags", "add_tags"),
+    REMOVE_TAGS("\u2702\uFE0F", "Hide Tags", "remove_tags"),
+    ADD_TAGS("\uD83D\uDCDD", "Show Tags", "add_tags"),
     DELETE("\uD83D\uDDD1️", "Delete", "delete");
 
     private final String icon;
