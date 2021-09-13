@@ -64,7 +64,7 @@ public class Main {
             new EditReplyCommand(messageDataStore, resultSender)
         )))
         .build()
-        .setRequiredScopes("applications.commands")
+        .setRequiredScopes("applications.commands", "bot")
         .awaitReady();
 
     System.out.println(jda.getInviteUrl(Permission.MESSAGE_WRITE));

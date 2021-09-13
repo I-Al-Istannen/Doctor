@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toList;
 
 import de.ialistannen.doctor.util.DeclarationFormatter;
 import de.ialistannen.doctor.util.parsers.ParseError;
+import de.ialistannen.doctor.util.parsers.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
@@ -85,37 +86,37 @@ public class DocEmbedBuilder {
   private String renderParagraphs(JavadocComment comment, int maxLength, int maxNewlines) {
     StringBuilder result = new StringBuilder();
 
-    List<String> renderedParagraphs = comment.getParagraphs()
-        .stream()
-        .map(it -> renderer.render(it, baseUrl))
-        .filter(it -> !it.isBlank())
-        .collect(toList());
-
+    StringReader inputReader = new StringReader(renderer.render(comment.getContent(), baseUrl));
     int encounteredNewlines = 0;
+    boolean inCodeBlock = false;
 
-    for (int i = 0; i < renderedParagraphs.size(); i++) {
-      String paragraph = renderedParagraphs.get(i);
-
-      int newlinesInParagraph = (int) paragraph.lines().count();
-      boolean paragraphTooLong = result.length() + paragraph.length() > maxLength;
-      boolean tooManyNewlines = encounteredNewlines + newlinesInParagraph > maxNewlines;
-
-      if (result.isEmpty() || (!paragraphTooLong && !tooManyNewlines)) {
-        result.append(paragraph);
-      } else {
-        result.append("*Skipped **")
-            .append(renderedParagraphs.size() - i)
-            .append("** paragraph(s). Use the `long` option if you are intrigued.*\n\u200B");
+    while (inputReader.canRead()) {
+      if (!inCodeBlock && encounteredNewlines >= maxNewlines || result.length() >= maxLength) {
         break;
       }
 
-      encounteredNewlines += newlinesInParagraph;
+      char next = inputReader.readChar();
+      result.append(next);
 
-      if (paragraph.lines().reduce("", (a, b) -> b).startsWith("```")) {
-        result.append("\n");
-      } else {
-        result.append("\n\n");
+      if (next == '`' && inputReader.canRead(2) && inputReader.peek(2).equals("``")) {
+        inCodeBlock = !inCodeBlock;
+        result.append(inputReader.readChars(2));
+        continue;
       }
+
+      if (next == '\n') {
+        encounteredNewlines++;
+      }
+    }
+
+    String text = result.toString();
+    result = new StringBuilder(text.strip());
+
+    if (inputReader.canRead()) {
+      int skippedLines = (int) inputReader.readRemaining().chars().filter(c -> c == '\n').count();
+      result.append("\n*Skipped **")
+          .append(skippedLines)
+          .append("** lines. Click `Expand` if you are intrigued.*");
     }
 
     return result.toString();
