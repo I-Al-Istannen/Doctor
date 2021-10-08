@@ -4,8 +4,8 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 
 import de.ialistannen.doctor.util.DeclarationFormatter;
+import de.ialistannen.doctor.util.StringTrimUtils;
 import de.ialistannen.doctor.util.parsers.ParseError;
-import de.ialistannen.doctor.util.parsers.StringReader;
 import de.ialistannen.javadocapi.model.JavadocElement;
 import de.ialistannen.javadocapi.model.JavadocElement.DeclarationStyle;
 import de.ialistannen.javadocapi.model.comment.JavadocComment;
@@ -84,42 +84,11 @@ public class DocEmbedBuilder {
   }
 
   private String renderParagraphs(JavadocComment comment, int maxLength, int maxNewlines) {
-    StringBuilder result = new StringBuilder();
-
-    StringReader inputReader = new StringReader(renderer.render(comment.getContent(), baseUrl));
-    int encounteredNewlines = 0;
-    boolean inCodeBlock = false;
-
-    while (inputReader.canRead()) {
-      if (!inCodeBlock && encounteredNewlines >= maxNewlines || result.length() >= maxLength) {
-        break;
-      }
-
-      char next = inputReader.readChar();
-      result.append(next);
-
-      if (next == '`' && inputReader.canRead(2) && inputReader.peek(2).equals("``")) {
-        inCodeBlock = !inCodeBlock;
-        result.append(inputReader.readChars(2));
-        continue;
-      }
-
-      if (next == '\n') {
-        encounteredNewlines++;
-      }
-    }
-
-    String text = result.toString();
-    result = new StringBuilder(text.strip());
-
-    if (inputReader.canRead()) {
-      int skippedLines = (int) inputReader.readRemaining().chars().filter(c -> c == '\n').count();
-      result.append("\n*Skipped **")
-          .append(skippedLines)
-          .append("** lines. Click `Expand` if you are intrigued.*");
-    }
-
-    return result.toString();
+    return StringTrimUtils.trimMarkdown(
+        renderer.render(comment.getContent(), baseUrl),
+        maxLength,
+        maxNewlines
+    );
   }
 
   public DocEmbedBuilder addTags() {
