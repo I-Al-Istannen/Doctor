@@ -15,6 +15,8 @@ import de.ialistannen.javadocapi.querying.QueryApi;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
+import de.ialistannen.javadocapi.util.NameShortener;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -23,9 +25,11 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static de.ialistannen.doctor.util.parsers.ArgumentParsers.*;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
 
 public class DocCommand implements Command {
 
@@ -61,6 +65,7 @@ public class DocCommand implements Command {
                 OptionType.STRING,
                 "query",
                 "The query. Example: 'String#contains('",
+                true,
                 true
             )
             .addOption(
@@ -76,6 +81,21 @@ public class DocCommand implements Command {
                 false
             )
     );
+  }
+
+  @Override
+  public void handle(final CommandContext commandContext, final AutoCompleteCommandSource source, final MessageSender sender) {
+
+    String query = source.getOptionValue().strip();
+
+    if (query.length() <= 2) {
+      source.getEvent().replyChoices(Collections.emptyList()).queue();
+      return;
+    }
+
+    handleAutoCompleteQuery(
+            query,
+            source);
   }
 
   @Override
@@ -283,6 +303,29 @@ public class DocCommand implements Command {
           )
           .queue();
     }
+  }
+
+  private void handleAutoCompleteQuery(final String query, final AutoCompleteCommandSource source) {
+    List<FuzzyQueryResult> results = queryApi.query(loader, query)
+            .stream()
+            .distinct()
+            .limit(25)
+            .collect(toList());
+
+    Map<String, FuzzyQueryResult> nameResultMap = results.stream().collect(toMap(
+            it -> it.getQualifiedName().asString(),
+            it -> it,
+            (a, b) -> a
+    ));
+
+    Map<String, String> shortenedNameMap = new NameShortener().shortenMatches(
+            nameResultMap.keySet().stream().map(QualifiedName::new).collect(Collectors.toSet())
+    );
+
+    source.getEvent().replyChoices(shortenedNameMap.keySet()
+            .stream()
+            .map(name -> new Choice(name, name))
+            .collect(toList())).queue();
   }
 
 }
