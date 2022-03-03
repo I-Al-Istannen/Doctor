@@ -2,8 +2,9 @@ package de.ialistannen.doctor.commands.system;
 
 import de.ialistannen.doctor.messages.MessageSender;
 import de.ialistannen.doctor.util.parsers.ArgumentParser;
-import java.util.Optional;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+
+import java.util.Optional;
 
 public interface Command {
 
@@ -25,6 +26,8 @@ public interface Command {
       handle(commandContext, (SlashCommandSource) source, sender);
     } else if (source instanceof SelectionMenuCommandSource) {
       handle(commandContext, (SelectionMenuCommandSource) source, sender);
+    } else if (source instanceof AutoCompleteCommandSource) {
+      handle(commandContext, (AutoCompleteCommandSource) source, sender);
     }
   }
 
@@ -45,6 +48,11 @@ public interface Command {
 
   default void handle(CommandContext commandContext, SlashCommandSource source,
       MessageSender sender) {
+    handle(commandContext, (CommandSource) source, sender);
+  }
+
+  default void handle(CommandContext commandContext, AutoCompleteCommandSource source,
+                      MessageSender sender) {
     handle(commandContext, (CommandSource) source, sender);
   }
 }
