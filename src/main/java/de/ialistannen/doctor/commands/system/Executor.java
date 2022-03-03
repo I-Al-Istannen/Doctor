@@ -5,19 +5,20 @@ import de.ialistannen.doctor.messages.MessageSender;
 import de.ialistannen.doctor.messages.NormalMessageSender;
 import de.ialistannen.doctor.util.parsers.ParseError;
 import de.ialistannen.doctor.util.parsers.StringReader;
-import java.awt.Color;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.MessageBuilder;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenuInteraction;
+import org.jetbrains.annotations.NotNull;
+
+import java.awt.*;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.MessageBuilder;
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenuInteraction;
-import org.jetbrains.annotations.NotNull;
 
 public class Executor extends ListenerAdapter {
 
@@ -53,8 +54,8 @@ public class Executor extends ListenerAdapter {
   }
 
   @Override
-  public void onSelectionMenu(@NotNull SelectionMenuEvent event) {
-    SelectionMenuInteraction interaction = event.getInteraction();
+  public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+    SelectMenuInteraction interaction = event.getInteraction();
     if (interaction.getValues().size() != 1) {
       event.reply("Sorry, I can't really handle multiple/none options right now.")
           .setEphemeral(true)
@@ -78,7 +79,7 @@ public class Executor extends ListenerAdapter {
   }
 
   @Override
-  public void onButtonClick(@NotNull ButtonClickEvent event) {
+  public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
     if (event.getButton() == null) {
       event.reply("Unknown button :/").queue();
       return;
@@ -105,7 +106,7 @@ public class Executor extends ListenerAdapter {
   }
 
   @Override
-  public void onSlashCommand(@NotNull SlashCommandEvent event) {
+  public void onSlashCommandInteraction(@NotNull SlashCommandInteractionEvent event) {
     StringReader reader = new StringReader("!" + event.getName() + " ");
 
     Optional<Command> command = findCommand(reader);

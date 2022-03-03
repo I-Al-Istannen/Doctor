@@ -13,15 +13,16 @@ import de.ialistannen.javadocapi.rendering.LinkResolveStrategy;
 import de.ialistannen.javadocapi.rendering.MarkdownCommentRenderer;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DocResultSender {
 

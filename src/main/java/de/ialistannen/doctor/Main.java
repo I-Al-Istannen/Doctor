@@ -67,7 +67,7 @@ public class Main {
         .setRequiredScopes("applications.commands", "bot")
         .awaitReady();
 
-    System.out.println(jda.getInviteUrl(Permission.MESSAGE_WRITE));
+    System.out.println(jda.getInviteUrl(Permission.MESSAGE_SEND));
   }
 
   private static List<ExternalJavadocReference> indexExternalJavadoc(List<String> urls)

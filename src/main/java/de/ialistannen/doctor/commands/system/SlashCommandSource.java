@@ -1,18 +1,19 @@
 package de.ialistannen.doctor.commands.system;
 
 import java.util.Optional;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 
 public class SlashCommandSource implements CommandSource {
 
-  private final SlashCommandEvent event;
+  private final SlashCommandInteractionEvent event;
 
-  public SlashCommandSource(SlashCommandEvent event) {
+  public SlashCommandSource(SlashCommandInteractionEvent event) {
     this.event = event;
   }
 
-  public SlashCommandEvent getEvent() {
+  public SlashCommandInteractionEvent getEvent() {
     return event;
   }
 

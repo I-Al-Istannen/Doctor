@@ -1,17 +1,6 @@
 package de.ialistannen.doctor.commands;
 
-import static de.ialistannen.doctor.util.parsers.ArgumentParsers.integer;
-import static de.ialistannen.doctor.util.parsers.ArgumentParsers.literal;
-import static de.ialistannen.doctor.util.parsers.ArgumentParsers.remaining;
-import static de.ialistannen.doctor.util.parsers.ArgumentParsers.word;
-import static java.util.stream.Collectors.toList;
-
-import de.ialistannen.doctor.commands.system.ButtonCommandSource;
-import de.ialistannen.doctor.commands.system.Command;
-import de.ialistannen.doctor.commands.system.CommandContext;
-import de.ialistannen.doctor.commands.system.CommandSource;
-import de.ialistannen.doctor.commands.system.SelectionMenuCommandSource;
-import de.ialistannen.doctor.commands.system.SlashCommandSource;
+import de.ialistannen.doctor.commands.system.*;
 import de.ialistannen.doctor.doc.DocMultipleResultSender;
 import de.ialistannen.doctor.doc.DocResultSender;
 import de.ialistannen.doctor.messages.MessageSender;
@@ -26,16 +15,17 @@ import de.ialistannen.javadocapi.querying.QueryApi;
 import de.ialistannen.javadocapi.storage.ElementLoader;
 import de.ialistannen.javadocapi.storage.ElementLoader.LoadResult;
 import de.ialistannen.javadocapi.util.BaseUrlElementLoader;
-import java.time.Duration;
-import java.time.Instant;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
+import static de.ialistannen.doctor.util.parsers.ArgumentParsers.*;
+import static java.util.stream.Collectors.toList;
 
 public class DocCommand implements Command {
 
@@ -63,7 +53,7 @@ public class DocCommand implements Command {
   @Override
   public Optional<CommandData> getSlashData() {
     return Optional.of(
-        new CommandData(
+        Commands.slash(
             "doc",
             "Fetches Javadoc for methods, classes and fields."
         )

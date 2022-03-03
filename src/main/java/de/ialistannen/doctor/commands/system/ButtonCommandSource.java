@@ -1,16 +1,16 @@
 package de.ialistannen.doctor.commands.system;
 
-import net.dv8tion.jda.api.events.interaction.ButtonClickEvent;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 
 public class ButtonCommandSource implements CommandSource {
 
-  private final ButtonClickEvent event;
+  private final ButtonInteractionEvent event;
 
-  public ButtonCommandSource(ButtonClickEvent event) {
+  public ButtonCommandSource(ButtonInteractionEvent event) {
     this.event = event;
   }
 
-  public ButtonClickEvent getEvent() {
+  public ButtonInteractionEvent getEvent() {
     return event;
   }
 

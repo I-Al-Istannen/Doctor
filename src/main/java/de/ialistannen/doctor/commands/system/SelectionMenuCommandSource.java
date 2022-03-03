@@ -1,16 +1,16 @@
 package de.ialistannen.doctor.commands.system;
 
-import net.dv8tion.jda.api.events.interaction.SelectionMenuEvent;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 public class SelectionMenuCommandSource implements CommandSource {
 
-  private final SelectionMenuEvent event;
+  private final SelectMenuInteractionEvent event;
 
-  public SelectionMenuCommandSource(SelectionMenuEvent event) {
+  public SelectionMenuCommandSource(SelectMenuInteractionEvent event) {
     this.event = event;
   }
 
-  public SelectionMenuEvent getEvent() {
+  public SelectMenuInteractionEvent getEvent() {
     return event;
   }
 

@@ -4,8 +4,8 @@ import de.ialistannen.doctor.state.SentMessageHandle;
 import de.ialistannen.doctor.state.SentMessageHandle.InteractionHookHandle;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.Interaction;
-import net.dv8tion.jda.api.interactions.components.ButtonInteraction;
-import net.dv8tion.jda.api.interactions.components.Component;
+import net.dv8tion.jda.api.interactions.callbacks.IDeferrableCallback;
+import net.dv8tion.jda.api.interactions.callbacks.IReplyCallback;
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction;
 import net.dv8tion.jda.api.requests.RestAction;
 
@@ -19,8 +19,12 @@ public class InitialInteractionMessageSender implements MessageSender {
 
   @Override
   public RestAction<SentMessageHandle> reply(Message message) {
-    return interaction.reply(message)
-        .flatMap(hook -> hook.retrieveOriginal().map(it -> new InteractionHookHandle(hook, it)));
+    if (interaction instanceof IReplyCallback) {
+      return ((IReplyCallback) interaction).reply(message)
+              .flatMap(hook -> hook.retrieveOriginal().map(it -> new InteractionHookHandle(hook, it)));
+    } else {
+      throw new IllegalStateException("Given Interaction isn't a IReplyCallback interaction, cannot reply!");
+    }
   }
 
   @Override
@@ -40,6 +44,11 @@ public class InitialInteractionMessageSender implements MessageSender {
     if (interaction instanceof ComponentInteraction) {
       ((ComponentInteraction) interaction).deferEdit().queue();
     }
-    return interaction.getHook().deleteOriginal();
+
+    if (interaction instanceof IDeferrableCallback) {
+      return ((IDeferrableCallback) interaction).getHook().deleteOriginal();
+    } else {
+      throw new IllegalStateException("Interaction isn't a IDefferableCallback interaction, cannot delete the original!");
+    }
   }
 }

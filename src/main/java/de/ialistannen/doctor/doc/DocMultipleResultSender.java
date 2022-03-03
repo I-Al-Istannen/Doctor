@@ -1,11 +1,5 @@
 package de.ialistannen.doctor.doc;
 
-import static de.ialistannen.doctor.util.StreamUtils.partition;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.mapping;
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
-
 import de.ialistannen.doctor.commands.system.CommandSource;
 import de.ialistannen.doctor.messages.MessageSender;
 import de.ialistannen.doctor.state.ActiveInteractions;
@@ -15,24 +9,23 @@ import de.ialistannen.javadocapi.model.QualifiedName;
 import de.ialistannen.javadocapi.querying.FuzzyQueryResult;
 import de.ialistannen.javadocapi.querying.QueryResult.ElementType;
 import de.ialistannen.javadocapi.util.NameShortener;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.stream.Collectors;
 import net.dv8tion.jda.api.MessageBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Button;
-import net.dv8tion.jda.api.interactions.components.ButtonStyle;
 import net.dv8tion.jda.api.interactions.components.Component.Type;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption;
-import net.dv8tion.jda.api.interactions.components.selections.SelectionMenu;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+import static de.ialistannen.doctor.util.StreamUtils.partition;
+import static java.util.stream.Collectors.*;
 
 public class DocMultipleResultSender {
 
@@ -159,7 +152,7 @@ public class DocMultipleResultSender {
     return grouped.entrySet().stream()
         .limit(5)
         .map(it ->
-            SelectionMenu.create("!javadoc " + source.getId() + " " + counter.counter++)
+            SelectMenu.create("!javadoc " + source.getId() + " " + counter.counter++)
                 .addOptions(it.getValue().stream().limit(25).collect(toList()))
                 .setPlaceholder(StringUtils.capitalize(it.getKey().name().toLowerCase(Locale.ROOT)))
                 .build()

@@ -70,7 +70,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>4.3.0_300</version>
+      <version>5.0.0-alpha.9</version>
     </dependency>
 
     <dependency>
@@ -89,11 +89,6 @@
   </dependencies>
 
   <repositories>
-    <repository>
-      <id>dv8tion</id>
-      <name>m2-dv8tion</name>
-      <url>https://m2.dv8tion.net/releases</url>
-    </repository>
     <repository>
         <id>jitpack.io</id>
         <url>https://jitpack.io</url>
