@@ -64,7 +64,7 @@
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>JavadocApi</artifactId>
-      <version>5f1aede52e</version>
+      <version>21ad5c1759</version>
     </dependency>
 
     <dependency>

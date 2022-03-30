@@ -25,11 +25,9 @@ import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static de.ialistannen.doctor.util.parsers.ArgumentParsers.*;
 import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toMap;
 
 public class DocCommand implements Command {
 
@@ -58,9 +56,9 @@ public class DocCommand implements Command {
   public Optional<CommandData> getSlashData() {
     return Optional.of(
         Commands.slash(
-            "doc",
-            "Fetches Javadoc for methods, classes and fields."
-        )
+                "doc",
+                "Fetches Javadoc for methods, classes and fields."
+            )
             .addOption(
                 OptionType.STRING,
                 "query",
@@ -94,8 +92,8 @@ public class DocCommand implements Command {
     }
 
     handleAutoCompleteQuery(
-            query,
-            source);
+        query,
+        source);
   }
 
   @Override
@@ -306,26 +304,35 @@ public class DocCommand implements Command {
   }
 
   private void handleAutoCompleteQuery(final String query, final AutoCompleteCommandSource source) {
-    List<FuzzyQueryResult> results = queryApi.query(loader, query)
-            .stream()
-            .distinct()
-            .limit(25)
-            .collect(toList());
+    List<QualifiedName> results = queryApi.autocomplete(loader, query)
+        .stream()
+        .distinct()
+        .limit(25)
+        .map(DocCommand::toQualifiedName)
+        .collect(toList());
 
-    Map<String, FuzzyQueryResult> nameResultMap = results.stream().collect(toMap(
-            it -> it.getQualifiedName().asString(),
-            it -> it,
-            (a, b) -> a
-    ));
+    Map<String, String> shortened = new NameShortener().shortenMatches(Set.copyOf(results));
 
-    Map<String, String> shortenedNameMap = new NameShortener().shortenMatches(
-            nameResultMap.keySet().stream().map(QualifiedName::new).collect(Collectors.toSet())
-    );
+    System.out.println(shortened);
 
-    source.getEvent().replyChoices(shortenedNameMap.keySet()
-            .stream()
-            .map(name -> new Choice(name, name))
+    source.getEvent().replyChoices(
+        results.stream()
+            .map(it -> new Choice(
+                shortenIfNeeded(shortened.get(it.asString())),
+                shortenIfNeeded(it.asString())
+            ))
             .collect(toList())).queue();
   }
 
+  private static String shortenIfNeeded(String input) {
+    return input.length() > 100 ? input.substring(0, 100) : input;
+  }
+
+  private static QualifiedName toQualifiedName(String asString) {
+    if (asString.contains("/")) {
+      String[] parts = asString.split("/");
+      return new QualifiedName(parts[1], parts[0]);
+    }
+    return new QualifiedName(asString);
+  }
 }
