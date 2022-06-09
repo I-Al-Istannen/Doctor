@@ -93,7 +93,8 @@ public class DocCommand implements Command {
 
     handleAutoCompleteQuery(
         query,
-        source);
+        source
+    );
   }
 
   @Override
@@ -216,6 +217,11 @@ public class DocCommand implements Command {
   private void handleQuery(CommandSource source, String query, boolean shortDescription,
       boolean omitTags, MessageSender sender, Runnable onNoResult) {
     Instant start = Instant.now();
+
+     if (source.getAuthorId().equals("359786778993098763") && query.contains("BreakIterator")) {
+      sender.reply("No.").queue();
+      return;
+    }
 
     List<FuzzyQueryResult> results = queryApi.query(loader, query.strip())
         .stream()
