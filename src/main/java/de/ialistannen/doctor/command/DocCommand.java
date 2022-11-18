@@ -15,7 +15,6 @@ import de.ialistannen.javadocbpi.query.MatchingStrategy;
 import de.ialistannen.javadocbpi.query.PrefixTrie;
 import de.ialistannen.javadocbpi.query.QueryTokenizer;
 import de.ialistannen.javadocbpi.query.QueryTokenizer.Token;
-import de.ialistannen.javadocbpi.rendering.MarkdownRenderer;
 import de.ialistannen.javadocbpi.rendering.links.ExternalJavadocAwareLinkResolver;
 import de.ialistannen.javadocbpi.rendering.links.ExternalJavadocReference;
 import de.ialistannen.javadocbpi.rendering.links.Java11PlusLinkResolver;
@@ -74,7 +73,6 @@ public class DocCommand {
 
   private final QueryTokenizer queryTokenizer;
   private final PrefixTrie trie;
-  private final MarkdownRenderer renderer;
   private final MultiFileStorage storage;
   private final LinkResolver linkResolver;
   private final ActiveMessages activeMessages;
@@ -83,13 +81,11 @@ public class DocCommand {
   private DocCommand(
       QueryTokenizer queryTokenizer,
       PrefixTrie trie,
-      MarkdownRenderer renderer,
       MultiFileStorage storage,
       LinkResolver linkResolver,
       ActiveMessages activeMessages) {
     this.queryTokenizer = queryTokenizer;
     this.trie = trie;
-    this.renderer = renderer;
     this.storage = storage;
     this.linkResolver = linkResolver;
     this.activeMessages = activeMessages;
@@ -155,7 +151,7 @@ public class DocCommand {
 
     FetchResult result = documentedElement.get();
     return new DocEmbedBuilder(
-        renderer,
+        linkResolver,
         result.element(),
         result.reference(),
         documentedElement.get().config().javadocUrl()
@@ -224,7 +220,6 @@ public class DocCommand {
     return new DocCommand(
         new QueryTokenizer(),
         PrefixTrie.forElements(elements),
-        new MarkdownRenderer(resolver),
         new MultiFileStorage(storages),
         resolver,
         activeMessages

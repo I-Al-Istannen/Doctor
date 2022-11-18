@@ -8,6 +8,7 @@ import de.ialistannen.doctor.util.ParseError;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElement;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElementReference;
 import de.ialistannen.javadocbpi.rendering.DeclarationRenderer;
+import de.ialistannen.javadocbpi.rendering.HtmlRenderVisitor;
 import de.ialistannen.javadocbpi.rendering.MarkdownRenderer;
 import de.ialistannen.javadocbpi.rendering.links.LinkResolver;
 import java.time.Duration;
@@ -28,7 +29,7 @@ public class DocEmbedBuilder {
   private static final Logger LOGGER = LoggerFactory.getLogger(DocEmbedBuilder.class);
 
   private final EmbedBuilder embedBuilder;
-  private final MarkdownRenderer renderer;
+  private final LinkResolver linkResolver;
   private final DocumentedElement element;
   private final DocumentedElementReference reference;
   private final String baseUrl;
@@ -36,13 +37,13 @@ public class DocEmbedBuilder {
   private final DeclarationRenderer declarationRenderer;
 
   public DocEmbedBuilder(
-      MarkdownRenderer renderer,
+      LinkResolver linkResolver,
       DocumentedElement element,
       DocumentedElementReference reference,
       String baseUrl
   ) {
-    this.renderer = renderer;
     this.element = element;
+    this.linkResolver = linkResolver;
     this.reference = reference;
     this.baseUrl = baseUrl;
 
@@ -95,27 +96,27 @@ public class DocEmbedBuilder {
   }
 
   private String renderParagraphs(List<JavadocElement> elements, int maxLength, int maxNewlines) {
-    int currentNewlineCount = 0;
     StringBuilder result = new StringBuilder();
+
+    HtmlRenderVisitor renderer = new HtmlRenderVisitor(linkResolver, baseUrl);
 
     for (JavadocElement javadocElement : elements) {
       if (javadocElement instanceof JavadocBlockTag) {
         continue;
       }
-      String rendered = renderer.render(javadocElement, baseUrl);
-      int newNewlines = (int) rendered.chars().filter(it -> it == '\n').count();
+      String renderedHtml = javadocElement.accept(renderer);
+      String renderedMarkdown = MarkdownRenderer.render(result + renderedHtml);
 
-      boolean tooManyNewlines = currentNewlineCount + newNewlines > maxNewlines;
-      boolean tooLong = result.length() + rendered.length() > maxLength;
+      boolean tooManyNewlines = renderedMarkdown.lines().count() > maxNewlines;
+      boolean tooLong = renderedMarkdown.length() > maxLength;
 
       if (tooLong || tooManyNewlines) {
         break;
       }
-      result.append(rendered);
-      currentNewlineCount += newNewlines;
+      result.append(renderedHtml);
     }
 
-    return result.toString();
+    return MarkdownRenderer.render(result.toString());
   }
 
   public DocEmbedBuilder addTags(boolean showTags) {
@@ -164,7 +165,10 @@ public class DocEmbedBuilder {
     if (!useArgument) {
       return tag.getTagType().getName();
     }
-    return tag.getTagType().getName() + " " + renderer.render(tag.getElements().get(0), baseUrl);
+    String argument = MarkdownRenderer.render(
+        tag.getElements().get(0).accept(new HtmlRenderVisitor(linkResolver, baseUrl))
+    );
+    return tag.getTagType().getName() + " " + argument;
   }
 
   private static boolean useBlockTagArgumentInTitle(JavadocBlockTag tag) {
