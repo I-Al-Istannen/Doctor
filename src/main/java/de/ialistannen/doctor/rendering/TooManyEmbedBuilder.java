@@ -47,7 +47,6 @@ public class TooManyEmbedBuilder {
 
     List<ActionRow> rows = new ArrayList<>();
     for (var chunk : chunk(qualifiedNameLabelMap.entrySet(), MAX_ROWS)) {
-      System.out.println(chunk);
       List<ItemComponent> components = new ArrayList<>();
       for (var entry : chunk) {
         buildButton(ownerId, entry.getKey(), entry.getValue())

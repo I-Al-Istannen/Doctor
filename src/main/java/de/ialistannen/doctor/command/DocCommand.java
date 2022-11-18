@@ -278,6 +278,7 @@ public class DocCommand {
         buildChoices(queryTokenizer.tokenize(query))
             .stream()
             .limit(OptionData.MAX_CHOICES)
+            .sorted()
             .map(it -> StringUtils.truncate(it, OptionData.MAX_CHOICE_NAME_LENGTH))
             .toList()
     ).queue();
