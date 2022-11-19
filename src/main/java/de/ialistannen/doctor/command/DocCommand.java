@@ -10,6 +10,7 @@ import de.ialistannen.doctor.storage.ActiveMessages.ActiveMessage;
 import de.ialistannen.doctor.storage.MultiFileStorage;
 import de.ialistannen.doctor.storage.MultiFileStorage.FetchResult;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElements;
+import de.ialistannen.javadocbpi.model.javadoc.ReferenceConversions;
 import de.ialistannen.javadocbpi.query.CaseSensitivity;
 import de.ialistannen.javadocbpi.query.MatchingStrategy;
 import de.ialistannen.javadocbpi.query.PrefixTrie;
@@ -41,6 +42,7 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -290,6 +292,17 @@ public class DocCommand {
       }
     }
 
-    return result;
+    return result.stream().map(this::unqualifyMethodParameters).toList();
+  }
+
+  private String unqualifyMethodParameters(String fqn) {
+    if (!fqn.contains("(")) {
+      return fqn;
+    }
+    String firstPart = fqn.substring(0, fqn.indexOf('('));
+    String params = fqn.substring(fqn.indexOf('(') + 1)
+        // remove modules from qualifier
+        .replaceAll("([^,]+?/)", "");
+    return firstPart + "(" + ReferenceConversions.unqualifyReference(params);
   }
 }
