@@ -217,11 +217,7 @@ public class DocEmbedBuilder {
 
     String link = linkResolver.resolve(reference, baseUrl).replace(" ", "%20");
     embedBuilder.setAuthor(
-        StringUtils.abbreviateMiddle(
-            reference.asQualifiedName(),
-            "...",
-            MessageEmbed.AUTHOR_MAX_LENGTH
-        ),
+        "Click here to open the online javadoc in your browser",
         link,
         iconUrl
     );
