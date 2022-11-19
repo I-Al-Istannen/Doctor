@@ -22,16 +22,22 @@ database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/Paper-Api-Index.db"
 javadoc_url = "https://papermc.io/javadocs/paper/1.19/"
 
 [[sources]]
-external_javadoc = []
+external_javadoc = [
+    "https://docs.oracle.com/en/java/javase/19/docs/api"
+]
 database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/JDA-Index.db"
 javadoc_url = "https://ci.dv8tion.net/job/JDA/javadoc/"
 
 [[sources]]
-external_javadoc = []
+external_javadoc = [
+    "https://docs.oracle.com/en/java/javase/19/docs/api"
+]
 database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/JavaFx-Index.db"
 javadoc_url = "https://openjfx.io/javadoc/16/"
 
 [[sources]]
-external_javadoc = []
+external_javadoc = [
+    "https://docs.oracle.com/en/java/javase/19/docs/api"
+]
 database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/ApFloat-Index.db"
 javadoc_url = "http://www.apfloat.org/apfloat_java/docs/"
