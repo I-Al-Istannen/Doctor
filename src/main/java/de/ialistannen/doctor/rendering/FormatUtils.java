@@ -88,6 +88,16 @@ public class FormatUtils {
             new Color(65, 105, 225), // royal blue,
             "https://www.jetbrains.com/help/img/idea/2019.1/icons.nodes.field.svg@2x.png",
             isField(it -> true)
+        ),
+        new ElementTypeDisplayData(
+            new Color(128, 128, 128), // gray,
+            "https://resources.jetbrains.com/help/img/idea/2019.1/icons.nodes.package.svg@2x.png",
+            element -> element instanceof DocumentedPackage
+        ),
+        new ElementTypeDisplayData(
+            new Color(128, 128, 128), // gray,
+            "https://resources.jetbrains.com/help/img/idea/2019.1/icons.nodes.package.svg@2x.png",
+            element -> element instanceof DocumentedModule
         )
     );
   }
