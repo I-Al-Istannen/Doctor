@@ -40,10 +40,11 @@ public class CommandListener extends ListenerAdapter {
 
   @Override
   public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-    if (event.getAuthor().isBot()) {
+    boolean mentionsMe = event.getMessage().getMentions().isMentioned(event.getJDA().getSelfUser());
+    if (event.getAuthor().isBot() || !mentionsMe) {
       return;
     }
-    if (event.getMessage().getContentRaw().startsWith("!update-slashes")) {
+    if (event.getMessage().getContentRaw().endsWith("!update-slashes")) {
       updateSlashes(event);
     }
   }

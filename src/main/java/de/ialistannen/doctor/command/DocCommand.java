@@ -59,7 +59,7 @@ public class DocCommand {
       .addOption(
           OptionType.STRING,
           "query",
-          "The element you want to look up",
+          "The element you want to look up. E.g. 'String#contains'",
           true,
           true
       );
