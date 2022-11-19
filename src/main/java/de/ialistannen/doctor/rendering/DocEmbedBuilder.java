@@ -18,6 +18,8 @@ import java.util.StringJoiner;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.javadoc.api.StandardJavadocTagType;
@@ -89,7 +91,11 @@ public class DocEmbedBuilder {
   public DocEmbedBuilder addLongDescription() {
     embedBuilder.getDescriptionBuilder()
         .append(limitSize(
-            renderParagraphs(element.javadoc(), Integer.MAX_VALUE, Integer.MAX_VALUE),
+            renderParagraphs(
+                element.javadoc(),
+                MessageEmbed.DESCRIPTION_MAX_LENGTH,
+                Integer.MAX_VALUE
+            ),
             MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
         ));
     return this;
@@ -104,19 +110,32 @@ public class DocEmbedBuilder {
       if (javadocElement instanceof JavadocBlockTag) {
         continue;
       }
-      String renderedHtml = javadocElement.accept(renderer);
-      String renderedMarkdown = MarkdownRenderer.render(result + renderedHtml);
-
-      boolean tooManyNewlines = renderedMarkdown.lines().count() > maxNewlines;
-      boolean tooLong = renderedMarkdown.length() > maxLength;
-
-      if (tooLong || tooManyNewlines) {
-        break;
-      }
-      result.append(renderedHtml);
+      result.append(javadocElement.accept(renderer));
     }
 
-    return MarkdownRenderer.render(result.toString());
+    Element body = Jsoup.parseBodyFragment(result.toString()).getElementsByTag("body").get(0);
+    String markdown = MarkdownRenderer.render(body.html());
+    while (markdown.length() > maxLength || markdown.lines().count() > maxNewlines) {
+      if (body.childNodeSize() <= 1) {
+        break;
+      }
+      deleteLastChild(body);
+      markdown = MarkdownRenderer.render(body.html());
+    }
+
+    return markdown;
+  }
+
+  private void deleteLastChild(Element element) {
+    if (element.lastChild() instanceof Element inner) {
+      deleteLastChild(inner);
+      return;
+    }
+    if (element.lastChild() != null) {
+      element.lastChild().remove();
+      return;
+    }
+    element.remove();
   }
 
   public DocEmbedBuilder addTags(boolean showTags) {
