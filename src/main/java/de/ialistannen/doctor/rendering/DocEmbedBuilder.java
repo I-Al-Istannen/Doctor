@@ -196,8 +196,8 @@ public class DocEmbedBuilder {
     }
     return switch (type) {
       case AUTHOR, DEPRECATED, HIDDEN, SERIAL_DATA, SINCE,
-          SERIAL, SERIAL_FIELD, USES, VERSION, RETURN -> false;
-      case EXCEPTION, PARAM, PROVIDES, SEE, THROWS -> true;
+          SERIAL, SERIAL_FIELD, USES, VERSION, RETURN, SEE -> false;
+      case EXCEPTION, PARAM, PROVIDES, THROWS -> true;
       default -> throw new IllegalStateException("Unexpected value: " + type);
     };
   }
