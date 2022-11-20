@@ -3,7 +3,7 @@ author_id = "id"
 
 [[sources]]
 external_javadoc = []
-database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/Jdk-Index.db"
+database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/Jdk-Index.db"
 javadoc_url = "https://docs.oracle.com/en/java/javase/19/docs/api"
 
 [[sources]]
@@ -18,26 +18,26 @@ external_javadoc = [
     "https://jd.adventure.kyori.net/text-serializer-plain/4.8.1/",
     "https://docs.oracle.com/en/java/javase/19/docs/api"
 ]
-database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/Paper-Api-Index.db"
+database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/Paper-Api-Index.db"
 javadoc_url = "https://papermc.io/javadocs/paper/1.19/"
 
 [[sources]]
 external_javadoc = [
     "https://docs.oracle.com/en/java/javase/19/docs/api"
 ]
-database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/JDA-Index.db"
+database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/JDA-Index.db"
 javadoc_url = "https://ci.dv8tion.net/job/JDA/javadoc/"
 
 [[sources]]
 external_javadoc = [
     "https://docs.oracle.com/en/java/javase/19/docs/api"
 ]
-database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/JavaFx-Index.db"
+database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/JavaFx-Index.db"
 javadoc_url = "https://openjfx.io/javadoc/16/"
 
 [[sources]]
 external_javadoc = [
     "https://docs.oracle.com/en/java/javase/19/docs/api"
 ]
-database = "/home/i_al_istannen/src/spoon/JavadocBpi/target/ApFloat-Index.db"
+database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/ApFloat-Index.db"
 javadoc_url = "http://www.apfloat.org/apfloat_java/docs/"

@@ -99,7 +99,7 @@
     </dependency>
     <dependency>
       <groupId>de.ialistannen</groupId>
-      <artifactId>JavadocBpi</artifactId>
+      <artifactId>JavadocIndexer</artifactId>
       <version>1.0-SNAPSHOT</version>
     </dependency>
   </dependencies>
