@@ -59,7 +59,7 @@ public class CommandListener extends ListenerAdapter {
       docCommand.onCommand(event);
     } catch (Exception e) {
       LOGGER.error("Error fetching docs", e);
-      event.reply(genericErrorMessage()).queue();
+      event.reply(genericErrorMessage()).setEphemeral(true).queue();
     }
   }
 
@@ -116,7 +116,7 @@ public class CommandListener extends ListenerAdapter {
       docCommand.updateMessage(event, newMessage.get());
     } catch (Exception e) {
       LOGGER.error("Error updating message", e);
-      event.reply(genericErrorMessage()).queue();
+      event.reply(genericErrorMessage()).setEphemeral(true).queue();
     }
   }
 
@@ -125,7 +125,7 @@ public class CommandListener extends ListenerAdapter {
       docCommand.updateButton(event, qualifiedName);
     } catch (Exception e) {
       LOGGER.error("Error fetching docs for button", e);
-      event.reply(genericErrorMessage()).queue();
+      event.reply(genericErrorMessage()).setEphemeral(true).queue();
     }
   }
 
