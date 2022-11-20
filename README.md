@@ -10,7 +10,9 @@ Then Doctor is for you :)
 
 Doctor is best explained by a short demo:
 
-https://user-images.githubusercontent.com/20284688/127779847-51c0b890-4ac8-4ddf-ac99-5054e40315bb.mp4
+
+https://user-images.githubusercontent.com/20284688/202914183-48fa576f-d6e2-4142-b5ea-5d12216f10a1.mp4
+
 
 ## Running Doctor
 The Doctor jar file can be build using `mvn package` and just takes a single
