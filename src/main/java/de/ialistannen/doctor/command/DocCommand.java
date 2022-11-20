@@ -303,6 +303,6 @@ public class DocCommand {
     String params = fqn.substring(fqn.indexOf('(') + 1)
         // remove modules from qualifier
         .replaceAll("([^,]+?/)", "");
-    return firstPart + "(" + ReferenceConversions.unqualifyReference(params);
+    return firstPart + "(" + ReferenceConversions.unqualifyReference(params) + ")";
   }
 }
