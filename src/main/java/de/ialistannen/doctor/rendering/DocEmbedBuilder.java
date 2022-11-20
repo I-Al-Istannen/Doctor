@@ -162,7 +162,13 @@ public class DocEmbedBuilder {
         if (useBlockTagArgumentInTitle(tag)) {
           elements = elements.subList(1, elements.size());
         }
-        bodyJoiner.add(renderParagraphs(elements, freeSpace, Integer.MAX_VALUE));
+        String paragraph = renderParagraphs(elements, freeSpace, Integer.MAX_VALUE);
+        // We already have something and it is too large -> Abort this one, skip all others
+        if (paragraph.length() > freeSpace && bodyJoiner.length() > 0) {
+          bodyJoiner.add("…");
+          break;
+        }
+        bodyJoiner.add(paragraph);
       }
 
       String body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH);
