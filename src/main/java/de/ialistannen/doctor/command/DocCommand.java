@@ -9,6 +9,8 @@ import de.ialistannen.doctor.storage.ActiveMessages;
 import de.ialistannen.doctor.storage.ActiveMessages.ActiveMessage;
 import de.ialistannen.doctor.storage.MultiFileStorage;
 import de.ialistannen.doctor.storage.MultiFileStorage.FetchResult;
+import de.ialistannen.javadocbpi.model.elements.DocumentedElement;
+import de.ialistannen.javadocbpi.model.elements.DocumentedElementReference;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElements;
 import de.ialistannen.javadocbpi.model.javadoc.ReferenceConversions;
 import de.ialistannen.javadocbpi.query.CaseSensitivity;
@@ -42,7 +44,6 @@ import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.Command.Choice;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -150,15 +151,28 @@ public class DocCommand {
     if (documentedElement.isEmpty()) {
       return notFoundEmbed(qualifiedName);
     }
+    Optional<DocumentedElement> parentElement = Optional.empty();
+    DocumentedElementReference ref = documentedElement.get().reference();
+    Optional<DocumentedElementReference> parentRef;
+    if (ref.isMethod() || ref.isField()) {
+      parentRef = ref.getType();
+    } else {
+      parentRef = ref.parent();
+    }
+    if (parentRef.isPresent()) {
+      parentElement = storage.get(parentRef.get().asQualifiedName()).map(FetchResult::element);
+    }
 
     FetchResult result = documentedElement.get();
     return new DocEmbedBuilder(
         linkResolver,
         result.element(),
+        parentElement.orElse(null),
         result.reference(),
         documentedElement.get().config().javadocUrl()
     )
         .addColor()
+        .addTitle()
         .addIcon(linkResolver)
         .addDeclaration()
         .addTags(message.tags())

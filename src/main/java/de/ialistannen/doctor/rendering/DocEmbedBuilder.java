@@ -7,17 +7,21 @@ import de.ialistannen.doctor.rendering.FormatUtils.ElementTypeDisplayData;
 import de.ialistannen.doctor.util.ParseError;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElement;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElementReference;
+import de.ialistannen.javadocbpi.model.elements.DocumentedField;
+import de.ialistannen.javadocbpi.model.elements.DocumentedMethod;
+import de.ialistannen.javadocbpi.model.elements.DocumentedModule;
+import de.ialistannen.javadocbpi.model.elements.DocumentedPackage;
+import de.ialistannen.javadocbpi.model.elements.DocumentedType;
 import de.ialistannen.javadocbpi.rendering.DeclarationRenderer;
 import de.ialistannen.javadocbpi.rendering.HtmlRenderVisitor;
 import de.ialistannen.javadocbpi.rendering.MarkdownRenderer;
 import de.ialistannen.javadocbpi.rendering.links.LinkResolver;
-import java.time.Duration;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.StringJoiner;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.slf4j.Logger;
@@ -33,6 +37,7 @@ public class DocEmbedBuilder {
   private final EmbedBuilder embedBuilder;
   private final LinkResolver linkResolver;
   private final DocumentedElement element;
+  private final DocumentedElement parent;
   private final DocumentedElementReference reference;
   private final String baseUrl;
   private final DeclarationFormatter declarationFormatter;
@@ -41,11 +46,13 @@ public class DocEmbedBuilder {
   public DocEmbedBuilder(
       LinkResolver linkResolver,
       DocumentedElement element,
+      DocumentedElement parent,
       DocumentedElementReference reference,
       String baseUrl
   ) {
     this.element = element;
     this.linkResolver = linkResolver;
+    this.parent = parent;
     this.reference = reference;
     this.baseUrl = baseUrl;
 
@@ -231,18 +238,34 @@ public class DocEmbedBuilder {
     return this;
   }
 
-  public DocEmbedBuilder addColor() {
-    FormatUtils.getCosmeticData(element)
-        .map(ElementTypeDisplayData::color)
-        .ifPresent(embedBuilder::setColor);
+  public DocEmbedBuilder addTitle() {
+    DocumentedElementReference parentRef = null;
+    switch (element) {
+      case DocumentedField field -> parentRef = field.enclosingTypeRef();
+      case DocumentedMethod method -> parentRef = method.enclosingTypeRef();
+      case DocumentedModule ignored -> {
+        return this;
+      }
+      case DocumentedPackage pack -> parentRef = pack.moduleRef();
+      case DocumentedType type -> parentRef = type.packageRef();
+    }
+
+    String link = linkResolver.resolve(parentRef, baseUrl).replace(" ", "%20");
+    String title = Objects.requireNonNull(parentRef).asQualifiedName();
+
+    if (parent != null) {
+      title = FormatUtils.getEmoji(parent).getFormatted() + " " + title;
+    }
+
+    embedBuilder.setTitle(title, link);
 
     return this;
   }
 
-  public DocEmbedBuilder addFooter(String source, Duration queryDuration) {
-    embedBuilder.setFooter(
-        "Query resolved from index '" + source + "' in " + queryDuration.toMillis() + "ms"
-    );
+  public DocEmbedBuilder addColor() {
+    FormatUtils.getCosmeticData(element)
+        .map(ElementTypeDisplayData::color)
+        .ifPresent(embedBuilder::setColor);
 
     return this;
   }
