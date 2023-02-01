@@ -30,6 +30,25 @@
       </plugin>
 
       <plugin>
+        <groupId>com.google.cloud.tools</groupId>
+        <artifactId>jib-maven-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <from>
+            <image>eclipse-temurin:19</image>
+          </from>
+          <to>
+            <image>i-al-istannen/doctor</image>
+          </to>
+          <container>
+            <jvmFlags>
+              <jvmFlag>--enable-preview</jvmFlag>
+            </jvmFlags>
+          </container>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.3.0</version>
