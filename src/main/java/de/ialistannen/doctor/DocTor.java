@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.sql.SQLException;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 
 public class DocTor {
@@ -23,9 +24,10 @@ public class DocTor {
     ActiveMessages activeMessages = new ActiveMessages();
     DocCommand docCommand = DocCommand.create(config, activeMessages);
 
-    JDABuilder.createDefault(config.token())
+    JDA jda = JDABuilder.createDefault(config.token())
         .addEventListeners(new CommandListener(config, docCommand, activeMessages))
         .build()
         .awaitReady();
+    System.out.println(jda.getInviteUrl());
   }
 }
