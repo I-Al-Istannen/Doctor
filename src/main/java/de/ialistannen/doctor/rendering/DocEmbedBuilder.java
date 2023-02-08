@@ -24,6 +24,7 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.Node;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spoon.javadoc.api.StandardJavadocTagType;
@@ -91,7 +92,6 @@ public class DocEmbedBuilder {
             renderParagraphs(element.javadoc(), 800, 8),
             MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
         ));
-
     return this;
   }
 
@@ -120,9 +120,24 @@ public class DocEmbedBuilder {
       result.append(javadocElement.accept(renderer));
     }
 
+    // Make a rough guess how many elements we can keep, so later iterations do not need to remove
+    // much. Removing stuff is quadratic and the constant factor is unpleasant.
     Element body = Jsoup.parseBodyFragment(result.toString()).getElementsByTag("body").get(0);
+    StringBuilder naiveConversion = new StringBuilder();
+    List<Node> children = body.childNodes();
+    int endIndex = children.size();
+    for (int i = 0; i < children.size(); i++) {
+      naiveConversion.append(MarkdownRenderer.render(children.get(i).outerHtml()));
+      if (exceedsSizeLimit(naiveConversion.toString(), maxLength, maxNewlines)) {
+        endIndex = i;
+        break;
+      }
+    }
+    // Remove too large elements
+    children.stream().toList().stream().skip(endIndex + 1).forEach(Node::remove);
+
     String markdown = MarkdownRenderer.render(body.html());
-    while (markdown.length() > maxLength || markdown.lines().count() > maxNewlines) {
+    while (exceedsSizeLimit(markdown, maxLength, maxNewlines)) {
       if (body.childNodeSize() <= 1) {
         break;
       }
@@ -131,6 +146,10 @@ public class DocEmbedBuilder {
     }
 
     return markdown;
+  }
+
+  private boolean exceedsSizeLimit(String text, int maxLength, int maxNewlines) {
+    return text.length() > maxLength || text.lines().count() > maxNewlines;
   }
 
   private void deleteLastChild(Element element) {
