@@ -122,7 +122,7 @@
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>JavadocIndexer</artifactId>
-      <version>7e137f04b7ffcd8193f4b14ac0fe6416e479329b</version>
+      <version>f8c27823d39b26430d0aeeab0f534ef5bd03899f</version>
     </dependency>
 
   </dependencies>
