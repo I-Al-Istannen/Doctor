@@ -249,12 +249,27 @@ public class DocEmbedBuilder {
 
     String link = linkResolver.resolve(reference, baseUrl).replace(" ", "%20");
     embedBuilder.setAuthor(
-        "Click here to open the online javadoc in your browser",
+        getElementSimpleName(),
         link,
         iconUrl
     );
 
     return this;
+  }
+
+  public DocEmbedBuilder addFooter() {
+    embedBuilder.setFooter(
+        "✨ Click the white name at the top to open the online javadoc."
+    );
+    return this;
+  }
+
+  private String getElementSimpleName() {
+    if (element instanceof DocumentedMethod method) {
+      String params = method.parameters().isEmpty() ? "" : "…";
+      return method.name() + "(" + params + ")";
+    }
+    return element.pathSegment();
   }
 
   public DocEmbedBuilder addTitle() {

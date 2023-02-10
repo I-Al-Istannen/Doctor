@@ -177,6 +177,7 @@ public class DocCommand {
         .addDeclaration()
         .addTags(message.tags())
         .addDescription(message.descriptionStyle())
+        .addFooter()
         .build();
   }
 
