@@ -7,6 +7,7 @@ import de.ialistannen.doctor.util.StringReader;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElement;
 import de.ialistannen.javadocbpi.model.elements.DocumentedMethod;
 import de.ialistannen.javadocbpi.model.elements.DocumentedType;
+import de.ialistannen.javadocbpi.model.elements.DocumentedType.Type;
 import de.ialistannen.javadocbpi.rendering.DeclarationRenderer;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +96,7 @@ public class DeclarationFormatter {
 
     boolean choppedDown = input.remaining() > maxLength;
 
-    if (element.hasSuperclass()) {
+    if (element.hasSuperclass() && element.type() != Type.ENUM) {
       String rest = input.peekWhile(c -> true);
       int classIndex = rest.indexOf(element.pathSegment());
       result.append(input.readChars(classIndex));
