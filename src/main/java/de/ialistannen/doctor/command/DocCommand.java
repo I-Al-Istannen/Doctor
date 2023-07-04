@@ -3,6 +3,7 @@ package de.ialistannen.doctor.command;
 import de.ialistannen.doctor.DocTorConfig;
 import de.ialistannen.doctor.DocTorConfig.SourceConfig;
 import de.ialistannen.doctor.rendering.DocEmbedBuilder;
+import de.ialistannen.doctor.rendering.DocEmbedBuilder.BuildResult;
 import de.ialistannen.doctor.rendering.DocEmbedBuilder.DescriptionStyle;
 import de.ialistannen.doctor.rendering.TooManyEmbedBuilder;
 import de.ialistannen.doctor.storage.ActiveMessages;
@@ -123,10 +124,13 @@ public class DocCommand {
       throws SQLException, IOException {
 
     String qualifiedName = qualifiedNames.iterator().next();
-    ActiveMessage message = ActiveMessage.of(event.getUser().getId(), qualifiedName);
+    BuildResult buildResult = foundEmbed(ActiveMessage.of(event.getUser().getId(), qualifiedName));
+    ActiveMessage message = ActiveMessage.of(event.getUser().getId(), qualifiedName)
+        .withExpandable(buildResult.truncatedDescription());
+
     event.reply(
         new MessageCreateBuilder()
-            .addEmbeds(foundEmbed(message))
+            .addEmbeds(buildResult.embed())
             .setComponents(foundMessageActions(message))
             .build()
     ).queue(interactionHook -> interactionHook.retrieveOriginal()
@@ -144,12 +148,12 @@ public class DocCommand {
         .build();
   }
 
-  private MessageEmbed foundEmbed(ActiveMessage message) throws SQLException, IOException {
+  private BuildResult foundEmbed(ActiveMessage message) throws SQLException, IOException {
     String qualifiedName = message.qualifiedName();
 
     Optional<FetchResult> documentedElement = storage.get(qualifiedName);
     if (documentedElement.isEmpty()) {
-      return notFoundEmbed(qualifiedName);
+      return new BuildResult(notFoundEmbed(qualifiedName), false);
     }
     Optional<DocumentedElement> parentElement = Optional.empty();
     DocumentedElementReference ref = documentedElement.get().reference();
@@ -193,11 +197,13 @@ public class DocCommand {
     List<MessageCommand> commands = new ArrayList<>();
     commands.add(MessageCommand.DELETE);
     commands.add(message.tags() ? MessageCommand.REMOVE_TAGS : MessageCommand.ADD_TAGS);
-    commands.add(
-        message.descriptionStyle() == DescriptionStyle.SHORT
-            ? MessageCommand.EXPAND
-            : MessageCommand.COLLAPSE
-    );
+    if (message.expandable()) {
+      commands.add(
+          message.descriptionStyle() == DescriptionStyle.SHORT
+              ? MessageCommand.EXPAND
+              : MessageCommand.COLLAPSE
+      );
+    }
 
     return ActionRow.of(
         commands.stream()
@@ -260,7 +266,6 @@ public class DocCommand {
     return references;
   }
 
-
   public void updateButton(ButtonInteractionEvent event, String qualifiedName)
       throws SQLException, IOException {
     updateMessage(event, ActiveMessage.of(event.getUser().getId(), qualifiedName));
@@ -268,11 +273,15 @@ public class DocCommand {
 
   public void updateMessage(ButtonInteractionEvent event, ActiveMessage message)
       throws SQLException, IOException {
-    activeMessages.registerMessage(event.getMessageId(), message);
+    BuildResult result = foundEmbed(message);
+    message = activeMessages.registerMessage(
+        event.getMessageId(),
+        message.withExpandable(result.truncatedDescription())
+    );
 
     event.getInteraction().editMessage(
         new MessageEditBuilder()
-            .setEmbeds(foundEmbed(message))
+            .setEmbeds(result.embed())
             .setComponents(foundMessageActions(message))
             .setReplace(true)
             .build()

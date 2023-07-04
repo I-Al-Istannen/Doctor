@@ -7,11 +7,11 @@ import java.util.Optional;
 import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
 
 public enum MessageCommand {
-  COLLAPSE("\u23EB", "Collapse", "collapse", ButtonStyle.SECONDARY),
-  EXPAND("\u23EC", "Expand", "expand", ButtonStyle.SECONDARY),
-  REMOVE_TAGS("\u2702\uFE0F", "Hide Tags", "remove_tags", ButtonStyle.SECONDARY),
-  ADD_TAGS("\uD83D\uDCDD", "Show Tags", "add_tags", ButtonStyle.SECONDARY),
-  DELETE("\uD83D\uDDD1️", "Delete", "delete", ButtonStyle.DANGER);
+  COLLAPSE("⏫", "Collapse", "collapse", ButtonStyle.SECONDARY),
+  EXPAND("⏬", "Expand", "expand", ButtonStyle.SECONDARY),
+  REMOVE_TAGS("✂️", "Hide Tags", "remove_tags", ButtonStyle.SECONDARY),
+  ADD_TAGS("📝", "Show Tags", "add_tags", ButtonStyle.SECONDARY),
+  DELETE("🗑️", "Delete", "delete", ButtonStyle.DANGER);
 
   private final ButtonStyle buttonStyle;
   private final String icon;

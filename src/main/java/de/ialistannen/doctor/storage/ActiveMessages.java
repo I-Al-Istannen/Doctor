@@ -30,8 +30,9 @@ public class ActiveMessages {
     return Optional.ofNullable(activeChoosers.getIfPresent(id));
   }
 
-  public void registerMessage(String messageId, ActiveMessage message) {
+  public ActiveMessage registerMessage(String messageId, ActiveMessage message) {
     activeMessages.put(messageId, message);
+    return message;
   }
 
   public Optional<ActiveMessage> lookupMessage(String messageId) {
@@ -53,19 +54,24 @@ public class ActiveMessages {
       String ownerId,
       String qualifiedName,
       DescriptionStyle descriptionStyle,
-      boolean tags
+      boolean tags,
+      boolean expandable
   ) {
 
     public ActiveMessage withDescriptionStyle(DescriptionStyle style) {
-      return new ActiveMessage(ownerId(), qualifiedName(), style, tags());
+      return new ActiveMessage(ownerId(), qualifiedName(), style, tags(), expandable);
     }
 
     public ActiveMessage withTags(boolean tags) {
-      return new ActiveMessage(ownerId(), qualifiedName(), descriptionStyle(), tags);
+      return new ActiveMessage(ownerId(), qualifiedName(), descriptionStyle(), tags, expandable);
+    }
+
+    public ActiveMessage withExpandable(boolean expandable) {
+      return new ActiveMessage(ownerId(), qualifiedName(), descriptionStyle(), tags, expandable);
     }
 
     public static ActiveMessage of(String ownerId, String qualifiedName) {
-      return new ActiveMessage(ownerId, qualifiedName, DescriptionStyle.SHORT, false);
+      return new ActiveMessage(ownerId, qualifiedName, DescriptionStyle.SHORT, false, true);
     }
   }
 

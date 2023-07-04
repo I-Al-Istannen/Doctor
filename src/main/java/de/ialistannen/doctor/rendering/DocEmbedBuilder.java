@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.function.Function;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import org.jsoup.Jsoup;
@@ -43,6 +44,7 @@ public class DocEmbedBuilder {
   private final String baseUrl;
   private final DeclarationFormatter declarationFormatter;
   private final DeclarationRenderer declarationRenderer;
+  private boolean truncatedDescription = false;
 
   public DocEmbedBuilder(
       LinkResolver linkResolver,
@@ -79,36 +81,43 @@ public class DocEmbedBuilder {
   }
 
   public DocEmbedBuilder addDescription(DescriptionStyle style) {
-    switch (style) {
+    truncatedDescription = switch (style) {
       case SHORT -> addShortDescription();
       case LONG -> addLongDescription();
-    }
+    };
     return this;
   }
 
-  public DocEmbedBuilder addShortDescription() {
-    embedBuilder.getDescriptionBuilder()
-        .append(limitSize(
-            renderParagraphs(element.javadoc(), 800, 8),
+  public boolean addShortDescription() {
+    RenderedText renderedText = renderParagraphs(element.javadoc(), 800, 8)
+        .then(text -> limitSize(
+            text,
             MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
         ));
-    return this;
-  }
-
-  public DocEmbedBuilder addLongDescription() {
     embedBuilder.getDescriptionBuilder()
-        .append(limitSize(
-            renderParagraphs(
-                element.javadoc(),
-                MessageEmbed.DESCRIPTION_MAX_LENGTH,
-                Integer.MAX_VALUE
-            ),
-            MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
-        ));
-    return this;
+        .append(renderedText.text());
+
+    return renderedText.truncated();
   }
 
-  private String renderParagraphs(List<JavadocElement> elements, int maxLength, int maxNewlines) {
+  public boolean addLongDescription() {
+    RenderedText renderedText = renderParagraphs(
+        element.javadoc(),
+        MessageEmbed.DESCRIPTION_MAX_LENGTH,
+        Integer.MAX_VALUE
+    ).then(text -> limitSize(
+        text,
+        MessageEmbed.DESCRIPTION_MAX_LENGTH - embedBuilder.getDescriptionBuilder().length()
+    ));
+    embedBuilder.getDescriptionBuilder()
+        .append(renderedText.text());
+
+    return renderedText.truncated();
+  }
+
+  private RenderedText renderParagraphs(
+      List<JavadocElement> elements, int maxLength, int maxNewlines
+  ) {
     StringBuilder result = new StringBuilder();
 
     HtmlRenderVisitor renderer = new HtmlRenderVisitor(linkResolver, baseUrl);
@@ -120,6 +129,8 @@ public class DocEmbedBuilder {
       result.append(javadocElement.accept(renderer));
     }
 
+    boolean truncated = false;
+
     // Make a rough guess how many elements we can keep, so later iterations do not need to remove
     // much. Removing stuff is quadratic and the constant factor is unpleasant.
     Element body = Jsoup.parseBodyFragment(result.toString()).getElementsByTag("body").get(0);
@@ -129,6 +140,7 @@ public class DocEmbedBuilder {
     for (int i = 0; i < children.size(); i++) {
       naiveConversion.append(MarkdownRenderer.render(children.get(i).outerHtml()));
       if (exceedsSizeLimit(naiveConversion.toString(), maxLength, maxNewlines)) {
+        truncated = true;
         endIndex = i;
         break;
       }
@@ -138,6 +150,7 @@ public class DocEmbedBuilder {
 
     String markdown = MarkdownRenderer.render(body.html());
     while (exceedsSizeLimit(markdown, maxLength, maxNewlines)) {
+      truncated = true;
       if (body.childNodeSize() <= 1) {
         break;
       }
@@ -145,7 +158,7 @@ public class DocEmbedBuilder {
       markdown = MarkdownRenderer.render(body.html());
     }
 
-    return markdown;
+    return new RenderedText(markdown, truncated);
   }
 
   private boolean exceedsSizeLimit(String text, int maxLength, int maxNewlines) {
@@ -188,7 +201,7 @@ public class DocEmbedBuilder {
         if (useBlockTagArgumentInTitle(tag)) {
           elements = elements.subList(1, elements.size());
         }
-        String paragraph = renderParagraphs(elements, freeSpace, Integer.MAX_VALUE);
+        String paragraph = renderParagraphs(elements, freeSpace, Integer.MAX_VALUE).text();
         // We already have something and it is too large -> Abort this one, skip all others
         if (paragraph.length() > freeSpace && bodyJoiner.length() > 0) {
           bodyJoiner.add("…");
@@ -197,7 +210,7 @@ public class DocEmbedBuilder {
         bodyJoiner.add(paragraph);
       }
 
-      String body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH);
+      String body = limitSize(bodyJoiner.toString(), MessageEmbed.VALUE_MAX_LENGTH).text;
       embedBuilder.addField(
           title,
           body,
@@ -304,20 +317,33 @@ public class DocEmbedBuilder {
     return this;
   }
 
-  public MessageEmbed build() {
-    return embedBuilder.build();
+  public BuildResult build() {
+    return new BuildResult(embedBuilder.build(), truncatedDescription);
   }
 
-  private String limitSize(String input, int max) {
+  private RenderedText limitSize(String input, int max) {
     if (input.length() <= max) {
-      return input;
+      return new RenderedText(input, false);
     }
-    return input.substring(0, max - 3) + "...";
+    return new RenderedText(input.substring(0, max - 3) + "...", true);
   }
 
   public enum DescriptionStyle {
     SHORT,
     LONG
+  }
+
+  private record RenderedText(String text, boolean truncated) {
+
+    public RenderedText then(Function<String, RenderedText> other) {
+      RenderedText res = other.apply(text);
+      return new RenderedText(res.text(), truncated() || res.truncated());
+    }
+
+  }
+
+  public record BuildResult(MessageEmbed embed, boolean truncatedDescription) {
+
   }
 
 }
