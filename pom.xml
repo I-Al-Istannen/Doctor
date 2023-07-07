@@ -22,7 +22,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.10.1</version>
         <configuration>
-          <release>19</release>
+          <release>20</release>
           <compilerArgs>
             <compilerArg>--enable-preview</compilerArg>
           </compilerArgs>
@@ -35,7 +35,7 @@
         <version>3.3.1</version>
         <configuration>
           <from>
-            <image>eclipse-temurin:19</image>
+            <image>eclipse-temurin:20</image>
           </from>
           <to>
             <image>i-al-istannen/doctor</image>
@@ -122,7 +122,7 @@
     <dependency>
       <groupId>com.github.I-Al-Istannen</groupId>
       <artifactId>JavadocIndexer</artifactId>
-      <version>f8c27823d39b26430d0aeeab0f534ef5bd03899f</version>
+      <version>8f39b2e9f8</version>
     </dependency>
 
   </dependencies>
