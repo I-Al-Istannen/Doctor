@@ -13,7 +13,6 @@ import de.ialistannen.doctor.storage.MultiFileStorage.FetchResult;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElement;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElementReference;
 import de.ialistannen.javadocbpi.model.elements.DocumentedElements;
-import de.ialistannen.javadocbpi.model.javadoc.ReferenceConversions;
 import de.ialistannen.javadocbpi.query.CaseSensitivity;
 import de.ialistannen.javadocbpi.query.MatchingStrategy;
 import de.ialistannen.javadocbpi.query.PrefixTrie;
@@ -39,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.regex.Pattern;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -57,6 +57,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class DocCommand {
+
+  private static final Pattern QUALIFIED_PATTERN = Pattern.compile(
+      "([\\p{L}_$][\\p{L}\\p{N}_$]*\\.)+([\\p{L}_$][\\p{L}\\p{N}_$]+)"
+  );
 
   public static final CommandData COMMAND = Commands
       .slash("doc", "Fetches Javadoc for the standard library and some more.")
@@ -240,13 +244,25 @@ public class DocCommand {
       elements.merge(storage.getAll());
     }
 
-    return new DocCommand(
+    DocCommand docCommand = new DocCommand(
         new QueryTokenizer(),
         PrefixTrie.forElements(elements),
         new MultiFileStorage(storages),
         resolver,
         activeMessages
     );
+
+    // This place is not a place of honor...
+    // no highly esteemed deed is commemorated here...
+    // nothing valued is here.
+    // What is here was dangerous and repulsive to us.
+    // This message is a warning about danger.
+    for (int i = 0; i < 3; i++) {
+      // Moshi gobbles up memory for breakfast, please return it
+      System.gc();
+    }
+
+    return docCommand;
   }
 
   private static List<ExternalJavadocReference> indexExternalJavadoc(List<String> urls)
@@ -327,6 +343,11 @@ public class DocCommand {
     String params = fqn.substring(fqn.indexOf('(') + 1)
         // remove modules from qualifier
         .replaceAll("([^,]+?/)", "");
-    return firstPart + "(" + ReferenceConversions.unqualifyReference(params) + ")";
+    return firstPart + "(" + unqualifyReference(params) + ")";
   }
+
+  public static String unqualifyReference(String fqn) {
+    return QUALIFIED_PATTERN.matcher(fqn).replaceAll("$2");
+  }
+
 }
