@@ -14,11 +14,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.Component.Type;
-import net.dv8tion.jda.api.interactions.components.ItemComponent;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.Component.Type;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.actionrow.ActionRowChildComponent;
+import net.dv8tion.jda.api.components.buttons.Button;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 import net.dv8tion.jda.api.utils.messages.AbstractMessageBuilder;
 
 public class TooManyEmbedBuilder {
@@ -39,7 +39,7 @@ public class TooManyEmbedBuilder {
   ) throws SQLException, IOException {
     Set<String> potentialMatches = qualifiedNames.stream()
         .distinct()
-        .limit((long) Type.BUTTON.getMaxPerRow() * MAX_ROWS)
+        .limit((long) ActionRow.getMaxAllowed(Type.BUTTON) * MAX_ROWS)
         .collect(Collectors.toSet());
 
     Map<String, String> qualifiedNameLabelMap = new NameShortener()
@@ -47,7 +47,7 @@ public class TooManyEmbedBuilder {
 
     List<ActionRow> rows = new ArrayList<>();
     for (var chunk : chunk(qualifiedNameLabelMap.entrySet(), MAX_ROWS)) {
-      List<ItemComponent> components = new ArrayList<>();
+      List<ActionRowChildComponent> components = new ArrayList<>();
       for (var entry : chunk) {
         buildButton(ownerId, entry.getKey(), entry.getValue())
             .ifPresent(components::add);
@@ -87,9 +87,7 @@ public class TooManyEmbedBuilder {
     };
 
     return input.stream()
-        .sequential()
-        .collect(Collectors.groupingBy(
-            t -> (holder.counter++) / chunkSize
+        .collect(Collectors.groupingBy(_ -> (holder.counter++) / chunkSize
         ))
         .values();
   }

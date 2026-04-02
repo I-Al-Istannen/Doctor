@@ -12,10 +12,10 @@ external_javadoc = [
     "https://javadoc.io/doc/org.yaml/snakeyaml/1.28/",
     "https://javadoc.io/doc/org.jetbrains/annotations/21.0.1/",
     "https://javadoc.io/doc/net.md-5/bungeecord-chat/1.16-R0.4/",
-    "https://jd.adventure.kyori.net/api/4.17.0/",
-    "https://jd.adventure.kyori.net/text-serializer-gson/4.8.1/",
-    "https://jd.adventure.kyori.net/text-serializer-legacy/4.8.1/",
-    "https://jd.adventure.kyori.net/text-serializer-plain/4.8.1/",
+    "https://jd.advntr.dev/api/4.17.0/",
+    "https://jd.advntr.dev/text-serializer-gson/4.8.1/",
+    "https://jd.advntr.dev/text-serializer-legacy/4.8.1/",
+    "https://jd.advntr.dev/text-serializer-plain/4.8.1/",
     "https://docs.oracle.com/en/java/javase/22/docs/api"
 ]
 database = "/home/i_al_istannen/src/spoon/JavadocIndexer/target/Paper-Api-Index.db"

@@ -4,7 +4,7 @@ import de.ialistannen.doctor.rendering.DocEmbedBuilder.DescriptionStyle;
 import de.ialistannen.doctor.storage.ActiveMessages.ActiveMessage;
 import java.util.Arrays;
 import java.util.Optional;
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle;
+import net.dv8tion.jda.api.components.buttons.ButtonStyle;
 
 public enum MessageCommand {
   COLLAPSE("⏫", "Collapse", "collapse", ButtonStyle.SECONDARY),

@@ -40,6 +40,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.components.actionrow.ActionRow;
+import net.dv8tion.jda.api.components.buttons.Button;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent;
@@ -49,8 +51,6 @@ import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
-import net.dv8tion.jda.api.interactions.components.ActionRow;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder;
 import net.dv8tion.jda.api.utils.messages.MessageEditBuilder;
 import org.apache.commons.lang3.StringUtils;
@@ -241,6 +241,7 @@ public class DocCommand {
     for (SourceConfig source : config.sources()) {
       SQLiteStorage storage = new SQLiteStorage(Path.of(source.database()), serializer);
       storages.put(source, storage);
+      System.out.println(source.database());
       elements.merge(storage.getAll());
     }
 

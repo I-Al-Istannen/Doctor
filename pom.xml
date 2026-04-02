@@ -10,9 +10,9 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <slf4j.version>2.0.3</slf4j.version>
-    <jackson.version>2.17.1</jackson.version>
-    <moshi.version>1.14.0</moshi.version>
+    <slf4j.version>2.0.17</slf4j.version>
+    <jackson.version>2.21.2</jackson.version>
+    <moshi.version>1.15.2</moshi.version>
   </properties>
 
   <build>
@@ -20,19 +20,19 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.15.0</version>
         <configuration>
-          <release>22</release>
+          <release>25</release>
         </configuration>
       </plugin>
 
       <plugin>
         <groupId>com.google.cloud.tools</groupId>
         <artifactId>jib-maven-plugin</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.1</version>
         <configuration>
           <from>
-            <image>eclipse-temurin:22</image>
+            <image>eclipse-temurin:25</image>
           </from>
           <to>
             <image>i-al-istannen/doctor</image>
@@ -46,7 +46,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>3.6.0</version>
+        <version>3.6.2</version>
         <executions>
           <execution>
             <id>shade</id>
@@ -88,7 +88,7 @@
     <dependency>
       <groupId>net.dv8tion</groupId>
       <artifactId>JDA</artifactId>
-      <version>5.0.0-beta.24</version>
+      <version>6.4.0</version>
     </dependency>
 
     <dependency>
@@ -111,7 +111,7 @@
     <dependency>
       <groupId>com.github.ben-manes.caffeine</groupId>
       <artifactId>caffeine</artifactId>
-      <version>3.1.8</version>
+      <version>3.2.3</version>
     </dependency>
 
     <dependency>
